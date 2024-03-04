@@ -596,8 +596,8 @@ public class MoneroWalletLight extends MoneroWalletJni {
         if (query.getTxQuery().getBlock() == null) query.getTxQuery().setBlock(new MoneroBlock().setTxs(query.getTxQuery()));
 
         // serialize query from block and fetch outputs from jni
-        //String blocksJson = getOutputsJni(JsonUtils.serialize(query.getTxQuery().getBlock()));
-        String blocksJson = getOutputsJni();
+        String blocksJson = getOutputsJni(JsonUtils.serialize(query.getTxQuery().getBlock()));
+        //String blocksJson = getOutputsJni();
         // deserialize and return outputs
         return deserializeOutputs(query, blocksJson);
     }
@@ -1361,7 +1361,7 @@ public class MoneroWalletLight extends MoneroWalletJni {
     private native static String getBalanceJni();
     private native static String getUnlockedBalanceJni();
     private native static String getTxsJni();
-    private native static String getOutputsJni();
+    private native static String getOutputsJni(String outputQueryJson);
     private native static String relayTxsJni(String[] txMetadatas);
     private native static void closeJni(boolean save);
 

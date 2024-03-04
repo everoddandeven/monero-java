@@ -111,7 +111,7 @@ void set_daemon_connection(JNIEnv *env, monero_wallet* wallet, jstring juri, jst
   }
 }
 
-void set_daemon_connection(JNIEnv *env, monero_wallet* wallet, jstring juri, jstring jport, jstring jadmin_uri, jstring jadmin_port, jstring jtoken) {
+void set_daemon_connection(JNIEnv *env, monero_wallet_light* wallet, jstring juri, jstring jport, jstring jadmin_uri, jstring jadmin_port, jstring jtoken) {
 
   // collect and release string params
   const char* _uri = juri ? env->GetStringUTFChars(juri, NULL) : nullptr;
@@ -120,10 +120,10 @@ void set_daemon_connection(JNIEnv *env, monero_wallet* wallet, jstring juri, jst
   const char* _admin_port = jadmin_port ? env->GetStringUTFChars(j_admin_port, NULL) : nullptr;
   const char* _token = jtoken ? env->GetStringUTFChars(jtoken, NULL) : nullptr;
   string uri = string(juri ? _uri : "");
-  string port = string(_port ? _port : "");
-  string admin_uri = string(_admin_uri ? _admin_uri : "");
-  string admin_port = string(_admin_port ? _admin_port : "");
-  string token = string(_token ? _token : "");
+  string port = string(jport ? _port : "");
+  string admin_uri = string(jadmin_uri ? _admin_uri : "");
+  string admin_port = string(jadmin_port ? _admin_port : "");
+  string token = string(jtoken ? _token : "");
   env->ReleaseStringUTFChars(juri, _uri);
   env->ReleaseStringUTFChars(jport, _port);
   env->ReleaseStringUTFChars(jadmin_uri, _admin_uri);
@@ -2485,13 +2485,20 @@ JNIEXPORT jstring JNICALL Java_monero_wallet_MoneroWalletLight_getTxsJni(JNIEnv*
   }
 }
 
-JNIEXPORT jstring JNICALL Java_monero_wallet_MoneroWalletLight_getOutputsJni(JNIEnv* env, jobject instance) {
+JNIEXPORT jstring JNICALL Java_monero_wallet_MoneroWalletLight_getOutputsJni(JNIEnv* env, jobject instance, jstring joutput_query) {
   MTRACE("Java_monero_wallet_MoneroWalletLight_getOutputsJni");
-  monero_wallet_light* wallet = get_handle<monero_wallet>(env, instance, JNI_WALLET_HANDLE);
-
+  monero_wallet* wallet = get_handle<monero_wallet>(env, instance, JNI_WALLET_HANDLE);
+  const char* _output_query = joutput_query ? env->GetStringUTFChars(joutput_query, NULL) : nullptr;
+  string output_query_json = string(_output_query ? _output_query : "");
+  env->ReleaseStringUTFChars(joutput_query, _output_query);
   try {
+
+    // deserialize output query
+    shared_ptr<monero_output_query> output_query = monero_output_query::deserialize_from_block(output_query_json);
+    MTRACE("Fetching outputs with request: " << output_query->serialize());
+
     // get outputs
-    vector<shared_ptr<monero_output_wallet>> outputs = wallet->get_outputs();
+    vector<shared_ptr<monero_output_wallet>> outputs = wallet->get_outputs(*output_query);
     MTRACE("Got " << outputs.size() << " outputs");
 
     // wrap and serialize blocks
@@ -2503,6 +2510,7 @@ JNIEXPORT jstring JNICALL Java_monero_wallet_MoneroWalletLight_getOutputsJni(JNI
 
     // free memory
     monero_utils::free(blocks);
+    monero_utils::free(output_query->m_tx_query.get());
     return env->NewStringUTF(blocks_json.c_str());
   } catch (...) {
     rethrow_cpp_exception_as_java_exception(env);
