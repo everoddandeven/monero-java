@@ -2455,15 +2455,8 @@ JNIEXPORT jstring JNICALL Java_monero_wallet_MoneroWalletLight_getUnlockedBalanc
 JNIEXPORT jstring JNICALL Java_monero_wallet_MoneroWalletLight_getTxsJni(JNIEnv* env, jobject instance, jstring jtx_query) {
   MTRACE("Java_monero_wallet_MoneroWalletLight_getTxsJni");
   monero_wallet* wallet = get_handle<monero_wallet>(env, instance, JNI_WALLET_HANDLE);
-  const char* _tx_query = jtx_query ? env->GetStringUTFChars(jtx_query, NULL) : nullptr;
-  string tx_query_json = string(_tx_query ? _tx_query : "");
-  env->ReleaseStringUTFChars(jtx_query, _tx_query);
+
   try {
-
-    // deserialize tx query
-    shared_ptr<monero_tx_query> tx_query = monero_tx_query::deserialize_from_block(tx_query_json);
-    //cout << "Fetching txs with query: " << tx_query->serialize() << endl;
-
     // get txs
     vector<shared_ptr<monero_tx_wallet>> txs = wallet->get_txs();
     MTRACE("Got " << txs.size() << " txs");
@@ -2477,7 +2470,7 @@ JNIEXPORT jstring JNICALL Java_monero_wallet_MoneroWalletLight_getTxsJni(JNIEnv*
 
     // free memory
     monero_utils::free(blocks);
-    monero_utils::free(tx_query);
+
     return env->NewStringUTF(blocks_json.c_str());
   } catch (...) {
     rethrow_cpp_exception_as_java_exception(env);
