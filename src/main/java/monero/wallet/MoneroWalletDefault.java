@@ -180,6 +180,7 @@ abstract class MoneroWalletDefault implements MoneroWallet {
   
   @Override
   public MoneroSyncResult sync(Long startHeight, MoneroWalletListenerI listener) {
+    // infinite loop, better abstract method?
     return sync(startHeight, listener);
   }
   

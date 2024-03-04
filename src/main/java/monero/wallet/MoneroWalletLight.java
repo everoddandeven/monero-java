@@ -265,6 +265,28 @@ public class MoneroWalletLight extends MoneroWalletJni {
         throw new MoneroError("MoneroWalletLight.getHeightByDate(int year, int month, int day) is not supported");
     }
 
+    @Override
+    public MoneroSyncResult sync(Long startHeight, MoneroWalletListenerI listener) {
+        assertNotClosed();
+
+        if (listener != null) throw new MoneroError("MoneroWalletLight.sync(Long startHeight, MoneroWalletListenerI listener) is not supported");
+
+        if (startHeight == null) startHeight = Math.max(getHeight(), getRestoreHeight());
+
+        // register listener if given
+        if (listener != null) addListener(listener);
+
+        // sync wallet and handle exception
+        try {
+            Object[] results = syncJni(startHeight);
+            return new MoneroSyncResult((long) results[0], (boolean) results[1]);
+        } catch (Exception e) {
+            throw new MoneroError(e.getMessage());
+        } finally {
+            if (listener != null) removeListener(listener); // unregister listener
+        }
+    }
+
     /**
      * Start background synchronizing with a maximum period between syncs.
      *
@@ -1254,6 +1276,65 @@ public class MoneroWalletLight extends MoneroWalletJni {
         return isClosed;
     }
 
+    /**
+     * Indicates if the wallet's daemon is synced with the network.
+     *
+     * @return true if the daemon is synced with the network, false otherwise
+     */
+    public boolean isDaemonSynced() {
+        assertNotClosed();
+        try {
+            return isDaemonSyncedJni();
+        } catch (Exception e) {
+            throw new MoneroError(e.getMessage());
+        }
+    }
+
+    /**
+     * Indicates if the wallet is synced with the daemon.
+     *
+     * @return true if the wallet is synced with the daemon, false otherwise
+     */
+    public boolean isSynced() {
+        assertNotClosed();
+        try {
+            return isSyncedJni();
+        } catch (Exception e) {
+            throw new MoneroError(e.getMessage());
+        }
+    }
+
+
+    /**
+     * Get the wallet's network type (mainnet, testnet, or stagenet).
+     *
+     * @return the wallet's network type
+     */
+    public MoneroNetworkType getNetworkType() {
+        assertNotClosed();
+        return MoneroNetworkType.values()[getNetworkTypeJni()];
+    }
+
+    /**
+     * Get the height of the first block that the wallet scans.
+     *
+     * @return the height of the first block that the wallet scans
+     */
+    public long getRestoreHeight() {
+        assertNotClosed();
+        return getRestoreHeightJni();
+    }
+
+    /**
+     * Set the height of the first block that the wallet scans.
+     *
+     * @param syncHeight is the height of the first block that the wallet scans
+     */
+    public void setRestoreHeight(long syncHeight) {
+        assertNotClosed();
+        setRestoreHeightJni(syncHeight);
+    }
+
     private void assertNotClosed() {
         if (isClosed) throw new MoneroError("Wallet is closed");
     }
@@ -1272,8 +1353,8 @@ public class MoneroWalletLight extends MoneroWalletJni {
     private native static long getRestoreHeightJni();
     private native static void setRestoreHeightJni(long startHeight);
     private native static long getDaemonHeightJni();
-    private native static String syncJni();
-    private native static String syncJni(long restoreHeight);
+    private native static Object[] syncJni();
+    private native static Object[] syncJni(long restoreHeight);
     private native static void startSyncingJni(long syncPeriodInMs);
     private native static void stopSyncingJni();
     private native static void rescanBlockchainJni();
