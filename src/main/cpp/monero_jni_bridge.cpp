@@ -111,6 +111,35 @@ void set_daemon_connection(JNIEnv *env, monero_wallet* wallet, jstring juri, jst
   }
 }
 
+void set_daemon_connection(JNIEnv *env, monero_wallet* wallet, jstring juri, jstring jport, jstring jadmin_uri, jstring jadmin_port, jstring jtoken) {
+
+  // collect and release string params
+  const char* _uri = juri ? env->GetStringUTFChars(juri, NULL) : nullptr;
+  const char* _port = jport ? env->GetStringUTFChars(jport, NULL) : nullptr;
+  const char* _admin_uri = jadmin_uri ? env->GetStringUTFChars(j_admin_uri, NULL) : nullptr;
+  const char* _admin_port = jadmin_port ? env->GetStringUTFChars(j_admin_port, NULL) : nullptr;
+  const char* _token = jtoken ? env->GetStringUTFChars(jtoken, NULL) : nullptr;
+  string uri = string(juri ? _uri : "");
+  string port = string(_port ? _port : "");
+  string admin_uri = string(_admin_uri ? _admin_uri : "");
+  string admin_port = string(_admin_port ? _admin_port : "");
+  string token = string(_token ? _token : "");
+  env->ReleaseStringUTFChars(juri, _uri);
+  env->ReleaseStringUTFChars(jport, _port);
+  env->ReleaseStringUTFChars(jadmin_uri, _admin_uri);
+  env->ReleaseStringUTFChars(jadmin_port, _admin_port);
+  env->ReleaseStringUTFChars(jtoken, _token);
+
+  // set daemon connection
+  try {
+    wallet->set_daemon_connection(uri, port, admin_uri, admin_port, token);
+  } catch (...) {
+    rethrow_cpp_exception_as_java_exception(env);
+  }
+}
+
+
+
 string strip_last_char(const string& str) {
   return str.substr(0, str.size() - 1);
 }
@@ -2244,7 +2273,7 @@ JNIEXPORT jbyteArray JNICALL Java_monero_wallet_MoneroWalletFull_getCacheFileBuf
 //  ------------------------ WALLET LIGHT INSTANCE METHODS --------------------------
 
 JNIEXPORT void JNICALL Java_monero_wallet_MoneroWalletLight_setDaemonConnectionJni(JNIEnv *env, jobject instance, jstring juri, jstring jport, jstring jadmin_uri, jstring jadmin_port, jstring jtoken) {
-  MTRACE("Java_monero_wallet_MoneroWalletFull_setDaemonConnectionJni");
+  MTRACE("Java_monero_wallet_MoneroWalletLight_setDaemonConnectionJni");
   monero_wallet* wallet = get_handle<monero_wallet>(env, instance, JNI_WALLET_HANDLE);
   try {
     set_daemon_connection(env, wallet, juri, jport, jadmin_uri, jadmin_port, jtoken);
@@ -2458,7 +2487,7 @@ JNIEXPORT jstring JNICALL Java_monero_wallet_MoneroWalletLight_getTxsJni(JNIEnv*
 
 JNIEXPORT jstring JNICALL Java_monero_wallet_MoneroWalletLight_getOutputsJni(JNIEnv* env, jobject instance) {
   MTRACE("Java_monero_wallet_MoneroWalletLight_getOutputsJni");
-  monero_wallet* wallet = get_handle<monero_wallet>(env, instance, JNI_WALLET_HANDLE);
+  monero_wallet_light* wallet = get_handle<monero_wallet>(env, instance, JNI_WALLET_HANDLE);
 
   try {
     // get outputs
