@@ -273,6 +273,8 @@ JNIEXPORT jbyteArray JNICALL Java_monero_wallet_MoneroWalletFull_getKeysFileBuff
 
 JNIEXPORT jbyteArray JNICALL Java_monero_wallet_MoneroWalletFull_getCacheFileBufferJni(JNIEnv *, jobject);
 
+// ----------------------------- MONERO WALLET LIGHT METHODS -----------------------------
+
 #ifdef __cplusplus
 }
 #endif

@@ -83,8 +83,7 @@ public class MoneroWalletFull extends MoneroWalletDefault {
   
   // class variables
   private static final Logger LOGGER = Logger.getLogger(MoneroWalletFull.class.getName());
-  private static final long DEFAULT_SYNC_PERIOD_IN_MS = 10000; // default period betweeen syncs in ms
-  
+
   // instance variables
   private long jniWalletHandle;                 // memory address of the wallet in c++; this variable is read directly by name in c++
   private long jniListenerHandle;               // memory address of the wallet listener in c++; this variable is read directly by name in c++
@@ -1693,60 +1692,7 @@ public class MoneroWalletFull extends MoneroWalletDefault {
   }
   
   // ------------------------ RESPONSE DESERIALIZATION ------------------------
-  
-  /**
-   * Override MoneroBlock with wallet types for polymorphic deserialization.
-   */
-  private static class MoneroBlockWallet extends MoneroBlock {
-    
-    // default constructor necessary for serialization
-    @SuppressWarnings("unused")
-    public MoneroBlockWallet() {
-      super();
-    }
-    
-    @JsonProperty("txs")
-    public MoneroBlockWallet setTxWallets(List<MoneroTxWallet> txs) {
-      super.setTxs(new ArrayList<MoneroTx>(txs));
-      return this;
-    }
-    
-    /**
-     * Initializes a new MoneroBlock with direct references to this block.
-     * 
-     * TODO: more efficient way to deserialize directly into MoneroBlock?
-     * 
-     * @return MoneroBlock is the newly initialized block with direct references to this block
-     */
-    public MoneroBlock toBlock() {
-      MoneroBlock block = new MoneroBlock();
-      block.setHash(getHash());
-      block.setHeight(getHeight());
-      block.setTimestamp(getTimestamp());
-      block.setSize(getSize());
-      block.setWeight(getWeight());
-      block.setLongTermWeight(getLongTermWeight());
-      block.setDepth(getDepth());
-      block.setDifficulty(getDifficulty());
-      block.setCumulativeDifficulty(getCumulativeDifficulty());
-      block.setMajorVersion(getMajorVersion());
-      block.setMinorVersion(getMinorVersion());
-      block.setNonce(getNonce());
-      block.setMinerTxHash(getMinerTxHash());
-      block.setNumTxs(getNumTxs());
-      block.setOrphanStatus(getOrphanStatus());
-      block.setPrevHash(getPrevHash());
-      block.setReward(getReward());
-      block.setPowHash(getPowHash());
-      block.setHex(getHex());
-      block.setMinerTx(getMinerTx());
-      block.setTxs(getTxs());
-      block.setTxHashes(getTxHashes());
-      for (MoneroTx tx : getTxs()) tx.setBlock(block);  // re-assign tx block references
-      return block;
-    }
-  }
-  
+
   private static class AccountsContainer {
     public List<MoneroAccount> accounts;
   };
@@ -1754,14 +1700,6 @@ public class MoneroWalletFull extends MoneroWalletDefault {
   private static class SubaddressesContainer {
     public List<MoneroSubaddress> subaddresses;
   };
-  
-  private static class BlocksWalletContainer {
-    public List<MoneroBlockWallet> blocks;
-  }
-  
-  private static class DeserializedBlocksContainer {
-    public List<MoneroBlock> blocks;
-  }
   
   private static class TxSetsContainer {
     public List<MoneroTxSet> txSets;
@@ -1772,42 +1710,7 @@ public class MoneroWalletFull extends MoneroWalletDefault {
     @SuppressWarnings("unused") public KeyImagesContainer() { } // necessary for serialization
     public KeyImagesContainer(List<MoneroKeyImage> keyImages) { this.keyImages = keyImages; };
   }
-  
-  private static DeserializedBlocksContainer deserializeBlocks(String blocksJson) {
-    DeserializedBlocksContainer deserializedBlocksContainer = new DeserializedBlocksContainer();
-    deserializedBlocksContainer.blocks = new ArrayList<MoneroBlock>();
-    BlocksWalletContainer blocksWalletContainer = JsonUtils.deserialize(MoneroRpcConnection.MAPPER, blocksJson, BlocksWalletContainer.class);
-    if (blocksWalletContainer.blocks != null) for (MoneroBlockWallet blockWallet : blocksWalletContainer.blocks) deserializedBlocksContainer.blocks.add(blockWallet.toBlock());
-    return deserializedBlocksContainer;
-  }
-  
-  private static List<MoneroTxWallet> deserializeTxs(MoneroTxQuery query, String blocksJson) {
-    
-    // deserialize blocks
-    DeserializedBlocksContainer deserializedBlocks = deserializeBlocks(blocksJson);
-    List<MoneroBlock> blocks = deserializedBlocks.blocks;
-    
-    // collect txs
-    List<MoneroTxWallet> txs = new ArrayList<MoneroTxWallet>();
-    for (MoneroBlock block : blocks) {
-      sanitizeBlock(block);
-      for (MoneroTx tx : block.getTxs()) {
-        if (block.getHeight() == null) tx.setBlock(null); // dereference placeholder block for unconfirmed txs
-        txs.add((MoneroTxWallet) tx);
-      }
-    }
-    
-    // re-sort txs which is lost over jni serialization
-    if (query.getHashes() != null) {
-      Map<String, MoneroTxWallet> txMap = new HashMap<String, MoneroTxWallet>();
-      for (MoneroTxWallet tx : txs) txMap.put(tx.getHash(), tx);
-      List<MoneroTxWallet> txsSorted = new ArrayList<MoneroTxWallet>();
-      for (String txHash : query.getHashes()) if (txMap.containsKey(txHash)) txsSorted.add(txMap.get(txHash));
-      txs = txsSorted;
-    }
-    return txs;
-  }
-  
+
   private static List<MoneroTransfer> deserializeTransfers(MoneroTransferQuery query, String blocksJson) {
     
     // deserialize blocks
@@ -1828,23 +1731,6 @@ public class MoneroWalletFull extends MoneroWalletDefault {
       }
     }
     return transfers;
-  }
-  
-  private static List<MoneroOutputWallet> deserializeOutputs(MoneroOutputQuery query, String blocksJson) {
-    
-    // deserialize blocks
-    DeserializedBlocksContainer deserializedBlocks = deserializeBlocks(blocksJson);
-    List<MoneroBlock> blocks = deserializedBlocks.blocks;
-    
-    // collect outputs
-    List<MoneroOutputWallet> outputs = new ArrayList<MoneroOutputWallet>();
-    for (MoneroBlock block : blocks) {
-      sanitizeBlock(block);
-      for (MoneroTx tx : block.getTxs()) {
-        outputs.addAll(((MoneroTxWallet) tx).getOutputsWallet());
-      }
-    }
-    return outputs;
   }
   
   private static class AddressBookEntriesContainer {
@@ -1878,12 +1764,4 @@ public class MoneroWalletFull extends MoneroWalletDefault {
     return subaddress;
   }
   
-  private static MoneroBlock sanitizeBlock(MoneroBlock block) {
-    for (MoneroTx tx : block.getTxs()) sanitizeTxWallet((MoneroTxWallet) tx);
-    return block;
-  }
-  
-  private static MoneroTxWallet sanitizeTxWallet(MoneroTxWallet tx) {
-    return tx;
-  }
 }
