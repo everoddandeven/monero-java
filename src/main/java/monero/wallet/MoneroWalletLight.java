@@ -4,6 +4,7 @@ import common.utils.GenUtils;
 import common.utils.JsonUtils;
 import monero.common.MoneroError;
 import monero.common.MoneroRpcConnection;
+import monero.common.MoneroUtils;
 import monero.daemon.model.MoneroBlock;
 import monero.daemon.model.MoneroKeyImage;
 import monero.daemon.model.MoneroNetworkType;
@@ -15,7 +16,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-public class MoneroWalletLight extends MoneroWalletDefault {
+public class MoneroWalletLight extends MoneroWalletJni {
+
 
     public static MoneroWalletLight openWallet(MoneroWalletConfig config) {
         throw new MoneroError("MoneroWalletLight.openWallet not supported yet.");
@@ -1280,7 +1282,6 @@ public class MoneroWalletLight extends MoneroWalletDefault {
     private native static String getTxsJni();
     private native static String getOutputsJni();
     private native static String relayTxsJni(String[] txMetadatas);
-    private native static long waitForNextBlock();
     private native static void closeJni(boolean save);
 
 }

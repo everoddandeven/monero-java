@@ -127,9 +127,9 @@ JNIEXPORT jlong JNICALL Java_monero_wallet_MoneroWalletFull_setListenerJni(JNIEn
 
 JNIEXPORT jobjectArray JNICALL Java_monero_wallet_MoneroWalletFull_syncJni(JNIEnv *, jobject, jlong);
 
-JNIEXPORT void JNICALL Java_monero_wallet_MoneroWalletFull_startSyncing(JNIEnv *, jobject, jlong);
+JNIEXPORT void JNICALL Java_monero_wallet_MoneroWalletFull_startSyncing(JNIEnv *, jobject, jlong); // should end with Jni?
 
-JNIEXPORT void JNICALL Java_monero_wallet_MoneroWalletFull_stopSyncing(JNIEnv *, jobject);
+JNIEXPORT void JNICALL Java_monero_wallet_MoneroWalletFull_stopSyncing(JNIEnv *, jobject); // should end with Jni?
 
 JNIEXPORT void JNICALL Java_monero_wallet_MoneroWalletFull_scanTxsJni(JNIEnv *, jobject, jobjectArray);
 
@@ -274,6 +274,50 @@ JNIEXPORT jbyteArray JNICALL Java_monero_wallet_MoneroWalletFull_getKeysFileBuff
 JNIEXPORT jbyteArray JNICALL Java_monero_wallet_MoneroWalletFull_getCacheFileBufferJni(JNIEnv *, jobject);
 
 // ----------------------------- MONERO WALLET LIGHT METHODS -----------------------------
+
+JNIEXPORT void JNICALL Java_monero_wallet_MoneroWalletLight_setDaemonConnectionJni(JNIEnv *, jobject, jstring, jstring, jstring, jstring, jstring);
+
+JNIEXPORT jboolean JNICALL Java_monero_wallet_MoneroWalletLight_isConnectedToDaemonJni(JNIEnv *, jobject);
+
+JNIEXPORT jint JNICALL Java_monero_wallet_MoneroWalletLight_getNetworkTypeJni(JNIEnv *, jobject);
+
+JNIEXPORT jboolean JNICALL Java_monero_wallet_MoneroWalletLight_isDaemonSyncedJni(JNIEnv *, jobject);
+
+JNIEXPORT jboolean JNICALL Java_monero_wallet_MoneroWalletLight_isSyncedJni(JNIEnv *, jobject);
+
+JNIEXPORT jstring JNICALL Java_monero_wallet_MoneroWalletLight_getVersionJni(JNIEnv *, jobject);
+
+JNIEXPORT jstring JNICALL Java_monero_wallet_MoneroWalletLight_getPrivateViewKeyJni(JNIEnv *, jobject);
+
+JNIEXPORT jstring JNICALL Java_monero_wallet_MoneroWalletLight_getPrimaryAddressJni(JNIEnv *, jobject);
+
+JNIEXPORT jlong JNICALL Java_monero_wallet_MoneroWalletLight_getHeightJni(JNIEnv *, jobject);
+
+JNIEXPORT jlong JNICALL Java_monero_wallet_MoneroWalletLight_getRestoreHeightJni(JNIEnv *, jobject);
+
+JNIEXPORT void JNICALL Java_monero_wallet_MoneroWalletLight_setRestoreHeightJni(JNIEnv *, jobject, jlong);
+
+JNIEXPORT jlong JNICALL Java_monero_wallet_MoneroWalletLight_getDaemonHeightJni(JNIEnv *, jobject);
+
+JNIEXPORT jobjectArray JNICALL Java_monero_wallet_MoneroWalletLight_syncJni(JNIEnv *, jobject, jlong);
+
+JNIEXPORT void JNICALL Java_monero_wallet_MoneroWalletLight_startSyncingJni(JNIEnv *, jobject, jlong); // should end with Jni?
+
+JNIEXPORT void JNICALL Java_monero_wallet_MoneroWalletLight_stopSyncingJni(JNIEnv *, jobject); // should end with Jni?
+
+JNIEXPORT void JNICALL Java_monero_wallet_MoneroWalletLight_rescanBlockchainJni(JNIEnv *, jobject);
+
+JNIEXPORT jstring JNICALL Java_monero_wallet_MoneroWalletLight_getBalanceJni(JNIEnv *, jobject);
+
+JNIEXPORT jstring JNICALL Java_monero_wallet_MoneroWalletLight_getUnlockedBalanceJni(JNIEnv *, jobject);
+
+JNIEXPORT jstring JNICALL Java_monero_wallet_MoneroWalletLight_getTxsJni(JNIEnv *, jobject);
+
+JNIEXPORT jstring JNICALL Java_monero_wallet_MoneroWalletLight_getOutputsJni(JNIEnv *, jobject);
+
+JNIEXPORT jobjectArray JNICALL Java_monero_wallet_MoneroWalletLight_relayTxsJni(JNIEnv *, jobject, jobjectArray);
+
+JNIEXPORT void JNICALL Java_monero_wallet_MoneroWalletLight_closeJni(JNIEnv *, jobject, jboolean);
 
 #ifdef __cplusplus
 }

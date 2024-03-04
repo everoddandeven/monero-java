@@ -38,6 +38,7 @@
 #include "chacha.h" // TODO: explicitly include because wallet2.h #include "crypto/chacha.h" is ignored
 #include "monero_jni_bridge.h"
 #include "wallet/monero_wallet_full.h"
+#include "wallet/monero_wallet_light.h"
 #include "utils/monero_utils.h"
 
 using namespace std;
@@ -2238,6 +2239,288 @@ JNIEXPORT jbyteArray JNICALL Java_monero_wallet_MoneroWalletFull_getCacheFileBuf
     rethrow_cpp_exception_as_java_exception(env);
     return 0;
   }
+}
+
+//  ------------------------ WALLET LIGHT INSTANCE METHODS --------------------------
+
+JNIEXPORT void JNICALL Java_monero_wallet_MoneroWalletLight_setDaemonConnectionJni(JNIEnv *env, jobject instance, jstring juri, jstring jport, jstring jadmin_uri, jstring jadmin_port, jstring jtoken) {
+  MTRACE("Java_monero_wallet_MoneroWalletFull_setDaemonConnectionJni");
+  monero_wallet* wallet = get_handle<monero_wallet>(env, instance, JNI_WALLET_HANDLE);
+  try {
+    set_daemon_connection(env, wallet, juri, jport, jadmin_uri, jadmin_port, jtoken);
+  } catch (...) {
+    rethrow_cpp_exception_as_java_exception(env);
+  }
+}
+
+JNIEXPORT jboolean JNICALL Java_monero_wallet_MoneroWalletLight_isConnectedToDaemonJni(JNIEnv* env, jobject instance) {
+  monero_wallet* wallet = get_handle<monero_wallet>(env, instance, JNI_WALLET_HANDLE);
+  try {
+    return static_cast<jboolean>(wallet->is_connected_to_daemon());
+  } catch (...) {
+    rethrow_cpp_exception_as_java_exception(env);
+    return 0;
+  }
+}
+
+JNIEXPORT jboolean JNICALL Java_monero_wallet_MoneroWalletLight_isDaemonSyncedJni(JNIEnv* env, jobject instance) {
+  monero_wallet* wallet = get_handle<monero_wallet>(env, instance, JNI_WALLET_HANDLE);
+  try {
+    return wallet->is_daemon_synced();
+  } catch (...) {
+    rethrow_cpp_exception_as_java_exception(env);
+    return 0;
+  }
+}
+
+JNIEXPORT jboolean JNICALL Java_monero_wallet_MoneroWalletLight_isSyncedJni(JNIEnv* env, jobject instance) {
+  monero_wallet* wallet = get_handle<monero_wallet>(env, instance, JNI_WALLET_HANDLE);
+  try {
+    return wallet->is_synced();
+  } catch (...) {
+    rethrow_cpp_exception_as_java_exception(env);
+    return 0;
+  }
+}
+
+JNIEXPORT jstring JNICALL Java_monero_wallet_MoneroWalletLight_getVersionJni(JNIEnv *env, jobject instance) {
+  MTRACE("Java_monero_wallet_MoneroWalletLight_getVersionJni");
+  monero_wallet* wallet = get_handle<monero_wallet>(env, instance, JNI_WALLET_HANDLE);
+  try {
+    return env->NewStringUTF(wallet->get_version().serialize().c_str());
+  } catch (...) {
+    rethrow_cpp_exception_as_java_exception(env);
+    return 0;
+  }
+}
+
+JNIEXPORT jint JNICALL Java_monero_wallet_MoneroWalletLight_getNetworkTypeJni(JNIEnv *env, jobject instance) {
+  MTRACE("Java_monero_wallet_MoneroWalletLight_getNetworkTypeJni");
+  monero_wallet* wallet = get_handle<monero_wallet>(env, instance, JNI_WALLET_HANDLE);
+  return wallet->get_network_type();
+}
+
+JNIEXPORT jstring JNICALL Java_monero_wallet_MoneroWalletLight_getPrivateViewKeyJni(JNIEnv *env, jobject instance) {
+  MTRACE("Java_monero_wallet_MoneroWalletLight_getPrivateViewKeyJni");
+  monero_wallet* wallet = get_handle<monero_wallet>(env, instance, JNI_WALLET_HANDLE);
+  try {
+    return env->NewStringUTF(wallet->get_private_view_key().c_str());
+  } catch (...) {
+    rethrow_cpp_exception_as_java_exception(env);
+    return 0;
+  }
+}
+
+JNIEXPORT jstring JNICALL Java_monero_wallet_MoneroWalletLight_getPrimaryAddressJni(JNIEnv *env, jobject instance) {
+  MTRACE("Java_monero_wallet_MoneroWalletLight_getPrimaryAddressJni");
+  monero_wallet* wallet = get_handle<monero_wallet>(env, instance, JNI_WALLET_HANDLE);
+  try {
+    return env->NewStringUTF(wallet->get_primary_address().c_str());
+  } catch (...) {
+    rethrow_cpp_exception_as_java_exception(env);
+    return 0;
+  }
+}
+
+JNIEXPORT jlong JNICALL Java_monero_wallet_MoneroWalletLight_getHeightJni(JNIEnv *env, jobject instance) {
+  MTRACE("Java_monero_wallet_MoneroWalletLight_getHeightJni");
+  monero_wallet* wallet = get_handle<monero_wallet>(env, instance, JNI_WALLET_HANDLE);
+  return wallet->get_height();
+}
+
+JNIEXPORT jlong JNICALL Java_monero_wallet_MoneroWalletLight_getRestoreHeightJni(JNIEnv *env, jobject instance) {
+  MTRACE("Java_monero_wallet_MoneroWalletLight_getRestoreHeightJni");
+  monero_wallet* wallet = get_handle<monero_wallet>(env, instance, JNI_WALLET_HANDLE);
+  return wallet->get_restore_height();
+}
+
+JNIEXPORT void JNICALL Java_monero_wallet_MoneroWalletLight_setRestoreHeightJni(JNIEnv *env, jobject instance, jlong restore_height) {
+  MTRACE("Java_monero_wallet_MoneroWalletLight_setRestoreHeightJni");
+  monero_wallet* wallet = get_handle<monero_wallet>(env, instance, JNI_WALLET_HANDLE);
+  try {
+    wallet->set_restore_height(restore_height);
+  } catch (...) {
+    rethrow_cpp_exception_as_java_exception(env);
+  }
+}
+
+JNIEXPORT jlong JNICALL Java_monero_wallet_MoneroWalletLight_getDaemonHeightJni(JNIEnv* env, jobject instance) {
+  monero_wallet* wallet = get_handle<monero_wallet>(env, instance, JNI_WALLET_HANDLE);
+  try {
+    return wallet->get_daemon_height();
+  } catch (...) {
+    rethrow_cpp_exception_as_java_exception(env);
+    return 0;
+  }
+}
+
+JNIEXPORT jobjectArray JNICALL Java_monero_wallet_MoneroWalletLight_syncJni(JNIEnv *env, jobject instance, jlong start_height) {
+  MTRACE("Java_monero_wallet_MoneroWalletLight_syncJni");
+  monero_wallet* wallet = get_handle<monero_wallet>(env, instance, JNI_WALLET_HANDLE);
+  try {
+
+    // sync wallet
+    monero_sync_result result = wallet->sync(start_height);
+
+    // build and return results as Object[2]{(long) num_blocks_fetched, (boolean) received_money}
+    jobjectArray results = env->NewObjectArray(2, env->FindClass("java/lang/Object"), nullptr);
+    jclass longClass = env->FindClass("java/lang/Long");
+    jmethodID longConstructor = env->GetMethodID(longClass, "<init>", "(J)V");
+    jobject numBlocksFetchedWrapped = env->NewObject(longClass, longConstructor, static_cast<jlong>(result.m_num_blocks_fetched));
+    env->SetObjectArrayElement(results, 0, numBlocksFetchedWrapped);
+    jclass booleanClass = env->FindClass("java/lang/Boolean");
+    jmethodID booleanConstructor = env->GetMethodID(booleanClass, "<init>", "(Z)V");
+    jobject receivedMoneyWrapped = env->NewObject(booleanClass, booleanConstructor, static_cast<jboolean>(result.m_received_money));
+    env->SetObjectArrayElement(results, 1, receivedMoneyWrapped);
+    return results;
+  } catch (...) {
+    rethrow_cpp_exception_as_java_exception(env);
+    return 0;
+  }
+}
+
+JNIEXPORT void JNICALL Java_monero_wallet_MoneroWalletLight_startSyncingJni(JNIEnv *env, jobject instance, jlong sync_period_in_ms) {
+  MTRACE("Java_monero_wallet_MoneroWalletLight_startSyncingJni");
+  monero_wallet* wallet = get_handle<monero_wallet>(env, instance, JNI_WALLET_HANDLE);
+  try {
+    wallet->start_syncing(sync_period_in_ms);
+  } catch (...) {
+    rethrow_cpp_exception_as_java_exception(env);
+  }
+}
+
+JNIEXPORT void JNICALL Java_monero_wallet_MoneroWalletLight_stopSyncingJni(JNIEnv *env, jobject instance) {
+  MTRACE("Java_monero_wallet_MoneroWalletLight_stopSyncingJni");
+  monero_wallet* wallet = get_handle<monero_wallet>(env, instance, JNI_WALLET_HANDLE);
+  try {
+    wallet->stop_syncing();
+  } catch (...) {
+    rethrow_cpp_exception_as_java_exception(env);
+  }
+}
+
+JNIEXPORT void JNICALL Java_monero_wallet_MoneroWalletLight_rescanBlockchainJni(JNIEnv *env, jobject instance) {
+  MTRACE("Java_monero_wallet_MoneroWalletLight_rescanBlockchainJni");
+  monero_wallet* wallet = get_handle<monero_wallet>(env, instance, JNI_WALLET_HANDLE);
+  try {
+    wallet->rescan_blockchain();
+  } catch (...) {
+    rethrow_cpp_exception_as_java_exception(env);
+  }
+}
+
+JNIEXPORT jstring JNICALL Java_monero_wallet_MoneroWalletLight_getBalanceJni(JNIEnv *env, jobject instance) {
+  MTRACE("Java_monero_wallet_MoneroWalletLight_getBalanceJni");
+  monero_wallet* wallet = get_handle<monero_wallet>(env, instance, JNI_WALLET_HANDLE);
+  uint64_t balance = wallet->get_balance();
+  return env->NewStringUTF(boost::lexical_cast<std::string>(balance).c_str());
+}
+
+JNIEXPORT jstring JNICALL Java_monero_wallet_MoneroWalletLight_getUnlockedBalanceJni(JNIEnv *env, jobject instance) {
+  MTRACE("Java_monero_wallet_MoneroWalletLight_getUnlockedBalanceJni");
+  monero_wallet* wallet = get_handle<monero_wallet>(env, instance, JNI_WALLET_HANDLE);
+  uint64_t balance = wallet->get_unlocked_balance();
+  return env->NewStringUTF(boost::lexical_cast<std::string>(balance).c_str());
+}
+
+JNIEXPORT jstring JNICALL Java_monero_wallet_MoneroWalletLight_getTxsJni(JNIEnv* env, jobject instance, jstring jtx_query) {
+  MTRACE("Java_monero_wallet_MoneroWalletLight_getTxsJni");
+  monero_wallet* wallet = get_handle<monero_wallet>(env, instance, JNI_WALLET_HANDLE);
+  const char* _tx_query = jtx_query ? env->GetStringUTFChars(jtx_query, NULL) : nullptr;
+  string tx_query_json = string(_tx_query ? _tx_query : "");
+  env->ReleaseStringUTFChars(jtx_query, _tx_query);
+  try {
+
+    // deserialize tx query
+    shared_ptr<monero_tx_query> tx_query = monero_tx_query::deserialize_from_block(tx_query_json);
+    //cout << "Fetching txs with query: " << tx_query->serialize() << endl;
+
+    // get txs
+    vector<shared_ptr<monero_tx_wallet>> txs = wallet->get_txs();
+    MTRACE("Got " << txs.size() << " txs");
+
+    // wrap and serialize blocks
+    vector<shared_ptr<monero_block>> blocks = monero_utils::get_blocks_from_txs(txs);
+    rapidjson::Document doc;
+    doc.SetObject();
+    doc.AddMember("blocks", monero_utils::to_rapidjson_val(doc.GetAllocator(), blocks), doc.GetAllocator());
+    string blocks_json = monero_utils::serialize(doc);
+
+    // free memory
+    monero_utils::free(blocks);
+    monero_utils::free(tx_query);
+    return env->NewStringUTF(blocks_json.c_str());
+  } catch (...) {
+    rethrow_cpp_exception_as_java_exception(env);
+    return 0;
+  }
+}
+
+JNIEXPORT jstring JNICALL Java_monero_wallet_MoneroWalletLight_getOutputsJni(JNIEnv* env, jobject instance) {
+  MTRACE("Java_monero_wallet_MoneroWalletLight_getOutputsJni");
+  monero_wallet* wallet = get_handle<monero_wallet>(env, instance, JNI_WALLET_HANDLE);
+
+  try {
+    // get outputs
+    vector<shared_ptr<monero_output_wallet>> outputs = wallet->get_outputs();
+    MTRACE("Got " << outputs.size() << " outputs");
+
+    // wrap and serialize blocks
+    vector<shared_ptr<monero_block>> blocks = monero_utils::get_blocks_from_outputs(outputs);
+    rapidjson::Document doc;
+    doc.SetObject();
+    doc.AddMember("blocks", monero_utils::to_rapidjson_val(doc.GetAllocator(), blocks), doc.GetAllocator());
+    string blocks_json = monero_utils::serialize(doc);
+
+    // free memory
+    monero_utils::free(blocks);
+    return env->NewStringUTF(blocks_json.c_str());
+  } catch (...) {
+    rethrow_cpp_exception_as_java_exception(env);
+    return 0;
+  }
+}
+
+JNIEXPORT jobjectArray JNICALL Java_monero_wallet_MoneroWalletLight_relayTxsJni(JNIEnv* env, jobject instance, jobjectArray jtx_metadatas) {
+  MTRACE("Java_monero_wallet_MoneroWalletLight_relayTxsJni");
+  monero_wallet* wallet = get_handle<monero_wallet>(env, instance, JNI_WALLET_HANDLE);
+
+  // get tx metadatas from jobjectArray to vector<string>
+  vector<string> tx_metadatas;
+  if (jtx_metadatas != nullptr) {
+    jsize size = env->GetArrayLength(jtx_metadatas);
+    for (int idx = 0; idx < size; idx++) {
+      jstring jstr = (jstring) env->GetObjectArrayElement(jtx_metadatas, idx);
+      const char* _str = jstr ? env->GetStringUTFChars(jstr, NULL) : nullptr;
+      string str = string(_str ? _str : "");
+      env->ReleaseStringUTFChars(jstr, _str);
+      env->DeleteLocalRef(jstr);
+      tx_metadatas.push_back(str);
+    }
+    env->DeleteLocalRef(jtx_metadatas);
+  }
+
+  // relay tx metadata
+  vector<string> tx_hashes;
+  try {
+    tx_hashes = wallet->relay_txs(tx_metadatas);
+  } catch (...) {
+    rethrow_cpp_exception_as_java_exception(env);
+    return 0;
+  }
+
+  // return tx hashes as jobjectArray
+  jobjectArray jtx_hashes = env->NewObjectArray(tx_hashes.size(), env->FindClass("java/lang/String"), nullptr);
+  for (int i = 0; i < tx_hashes.size(); i++) env->SetObjectArrayElement(jtx_hashes, i, env->NewStringUTF(tx_hashes[i].c_str()));
+  return jtx_hashes;
+}
+
+JNIEXPORT void JNICALL Java_monero_wallet_MoneroWalletLight_closeJni(JNIEnv* env, jobject instance, jboolean save) {
+  MTRACE("Java_monero_wallet_MoneroWalletLight_CloseJni");
+  monero_wallet* wallet = get_handle<monero_wallet>(env, instance, JNI_WALLET_HANDLE);
+  if (save) wallet->save();
+  delete wallet;
+  wallet = nullptr;
 }
 
 #ifdef __cplusplus
