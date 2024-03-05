@@ -22,7 +22,6 @@
 
 package monero.wallet;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.type.TypeReference;
 import common.utils.GenUtils;
 import common.utils.JsonUtils;
@@ -30,7 +29,6 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -74,6 +72,89 @@ import monero.wallet.model.MoneroWalletListenerI;
  */
 public class MoneroWalletFull extends MoneroWalletJni {
 
+  // -------------------------------- LISTENER --------------------------------
+
+  /**
+   * Receives notifications directly from jni c++.
+   */
+  @SuppressWarnings("unused") // called directly from jni c++
+  protected class WalletJniListener {
+
+      public void onSyncProgress(long height, long startHeight, long endHeight, double percentDone, String message) {
+          announceSyncProgress(height, startHeight, endHeight, percentDone, message);
+      }
+
+      public void onNewBlock(long height) {
+          announceNewBlock(height);
+      }
+
+      public void onBalancesChanged(String newBalanceStr, String newUnlockedBalanceStr) {
+          announceBalancesChanged(new BigInteger(newBalanceStr), new BigInteger(newUnlockedBalanceStr));
+      }
+
+      public void onOutputReceived(long height, String txHash, String amountStr, int accountIdx, int subaddressIdx, int version, String unlockTimeStr, boolean isLocked) {
+
+          // build output to announce
+          MoneroOutputWallet output = new MoneroOutputWallet();
+          output.setAmount(new BigInteger(amountStr));
+          output.setAccountIndex(accountIdx);
+          output.setSubaddressIndex(subaddressIdx);
+          MoneroTxWallet tx = new MoneroTxWallet();
+          tx.setHash(txHash);
+          tx.setVersion(version);
+          tx.setUnlockTime(new BigInteger(unlockTimeStr));
+          output.setTx(tx);
+          tx.setOutputs(Arrays.asList(output));
+          tx.setIsIncoming(true);
+          tx.setIsLocked(isLocked);
+          if (height > 0) {
+              MoneroBlock block = new MoneroBlock().setHeight(height);
+              block.setTxs(Arrays.asList(tx));
+              tx.setBlock(block);
+              tx.setIsConfirmed(true);
+              tx.setInTxPool(false);
+              tx.setIsFailed(false);
+          } else {
+              tx.setIsConfirmed(false);
+              tx.setInTxPool(true);
+          }
+
+          // announce output
+          announceOutputReceived((MoneroOutputWallet) tx.getOutputs().get(0));
+      }
+
+      public void onOutputSpent(long height, String txHash, String amountStr, String accountIdxStr, String subaddressIdxStr, int version, String unlockTimeStr, boolean isLocked) {
+
+          // build spent output
+          MoneroOutputWallet output = new MoneroOutputWallet();
+          output.setAmount(new BigInteger(amountStr));
+          if (accountIdxStr.length() > 0) output.setAccountIndex(Integer.parseInt(accountIdxStr));
+          if (subaddressIdxStr.length() > 0) output.setSubaddressIndex(Integer.parseInt(subaddressIdxStr));
+          MoneroTxWallet tx = new MoneroTxWallet();
+          tx.setHash(txHash);
+          tx.setVersion(version);
+          tx.setUnlockTime(new BigInteger(unlockTimeStr));
+          tx.setIsLocked(isLocked);
+          output.setTx(tx);
+          tx.setInputs(Arrays.asList(output));
+          tx.setIsIncoming(false);
+          if (height > 0) {
+              MoneroBlock block = new MoneroBlock().setHeight(height);
+              block.setTxs(Arrays.asList(tx));
+              tx.setBlock(block);
+              tx.setIsConfirmed(true);
+              tx.setInTxPool(false);
+              tx.setIsFailed(false);
+          } else {
+              tx.setIsConfirmed(false);
+              tx.setInTxPool(true);
+          }
+
+          // announce output
+          announceOutputSpent((MoneroOutputWallet) tx.getInputs().get(0));
+      }
+  }
+
   /**
    * Private constructor with a handle to the memory address of the wallet in c++.
    *
@@ -81,6 +162,7 @@ public class MoneroWalletFull extends MoneroWalletJni {
    */
   private MoneroWalletFull(long jniWalletHandle, String password) {
     super(jniWalletHandle, password);
+    this.jniListener = new WalletJniListener();
   }
   
   // --------------------- WALLET MANAGEMENT UTILITIES ------------------------
@@ -112,6 +194,9 @@ public class MoneroWalletFull extends MoneroWalletJni {
     if (daemonConnection != null) wallet.setDaemonConnection(daemonConnection);
     return wallet;
   }
+
+  protected WalletJniListener jniListener;        // receives notifications from jni c++
+
   public static MoneroWalletFull openWallet(String path, String password, MoneroNetworkType networkType) { return openWallet(path, password, networkType, (MoneroRpcConnection) null); }
   public static MoneroWalletFull openWallet(String path, String password, MoneroNetworkType networkType, String daemonUri) { return openWallet(path, password, networkType, daemonUri == null ? null : new MoneroRpcConnection(daemonUri)); }
 
