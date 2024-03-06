@@ -323,7 +323,7 @@ public class MoneroWalletFull extends MoneroWalletJni {
    * &nbsp;&nbsp; serverUri - uri of the wallet's daemon (optional)<br>
    * &nbsp;&nbsp; serverUsername - username to authenticate with the daemon (optional)<br>
    * &nbsp;&nbsp; serverPassword - password to authenticate with the daemon (optional)<br>
-   * &nbsp;&nbsp; connectionManager - manage connections to monerod (optional)<br>
+   * &nbsp;&nbsp;   connectionManager - manage connections to monerod (optional)<br>
    * &nbsp;&nbsp; accountLookahead - number of accounts to scan (optional)<br>
    * &nbsp;&nbsp; subaddressLookahead - number of subaddresses per account to scan (optional)<br>
    * </p>
@@ -390,12 +390,6 @@ public class MoneroWalletFull extends MoneroWalletJni {
     if (config.getLanguage() == null) config.setLanguage(DEFAULT_LANGUAGE);
     long jniWalletHandle = createWalletJni(serializeWalletConfig(config));
     return new MoneroWalletFull(jniWalletHandle, config.getPassword());
-  }
-  
-  private static String serializeWalletConfig(MoneroWalletConfig config) {
-    Map<String, Object> configMap = JsonUtils.toMap(config);
-    configMap.put("networkType", config.getNetworkType().ordinal());
-    return JsonUtils.serialize(configMap);
   }
   
   /**

@@ -2553,6 +2553,48 @@ JNIEXPORT void JNICALL Java_monero_wallet_MoneroWalletLight_closeJni(JNIEnv* env
   wallet = nullptr;
 }
 
+JNIEXPORT jobjectArray JNICALL Java_monero_wallet_MoneroWalletLight_getSeedLanguagesJni(JNIEnv *env, jclass clazz) {
+  MTRACE("Java_monero_wallet_MoneroWalletLight_getLanguagesJni");
+
+  // get languages
+  vector<string> languages;
+  try {
+    languages = monero_wallet_light::get_seed_languages();
+  } catch (...) {
+    rethrow_cpp_exception_as_java_exception(env);
+    return 0;
+  }
+
+  // build java string array
+  jobjectArray jlanguages = env->NewObjectArray(languages.size(), env->FindClass("java/lang/String"), nullptr);
+  for (int i = 0; i < languages.size(); i++) {
+    env->SetObjectArrayElement(jlanguages, i, env->NewStringUTF(languages[i].c_str()));
+  }
+  return jlanguages;
+}
+
+JNIEXPORT jlong JNICALL Java_monero_wallet_MoneroWalletLight_createWalletJni(JNIEnv *env, jclass clazz, jstring jconfig) {
+  MTRACE("Java_monero_wallet_MoneroWalletLight_createWalletJni");
+
+  // get config as json string
+  const char* _config = jconfig ? env->GetStringUTFChars(jconfig, NULL) : nullptr;
+  string config_json = string(_config ? _config : "");
+  env->ReleaseStringUTFChars(jconfig, _config);
+
+  // deserialize wallet config
+  shared_ptr<monero_wallet_config> config = monero_wallet_config::deserialize(config_json);
+
+  // construct wallet
+  try {
+    monero_wallet* wallet = monero_wallet_light::create_wallet(*config);
+    return reinterpret_cast<jlong>(wallet);
+  } catch (...) {
+    rethrow_cpp_exception_as_java_exception(env);
+    return 0;
+  }
+}
+
+
 #ifdef __cplusplus
 }
 #endif

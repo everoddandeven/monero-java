@@ -273,6 +273,12 @@ JNIEXPORT jbyteArray JNICALL Java_monero_wallet_MoneroWalletFull_getKeysFileBuff
 
 JNIEXPORT jbyteArray JNICALL Java_monero_wallet_MoneroWalletFull_getCacheFileBufferJni(JNIEnv *, jobject);
 
+// --------------------------- STATIC LIGHT WALLET UTILS ----------------------------
+
+JNIEXPORT jlong JNICALL Java_monero_wallet_MoneroWalletLight_createWalletJni(JNIEnv *, jclass, jstring);
+
+JNIEXPORT jobjectArray JNICALL Java_monero_wallet_MoneroWalletLight_getSeedLanguagesJni(JNIEnv *, jclass);
+
 // ----------------------------- MONERO WALLET LIGHT METHODS -----------------------------
 
 JNIEXPORT void JNICALL Java_monero_wallet_MoneroWalletLight_setDaemonConnectionJni(JNIEnv *, jobject, jstring, jstring, jstring, jstring, jstring);

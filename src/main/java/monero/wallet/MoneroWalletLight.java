@@ -18,9 +18,50 @@ import java.util.List;
 
 public class MoneroWalletLight extends MoneroWalletJni {
 
+    public static MoneroWalletLight createWallet(MoneroWalletConfig config) {
+        // validate config
+        if (config == null) throw new MoneroError("Must specify config to open wallet");
+        if (config.getNetworkType() == null) throw new MoneroError("Must specify a network type: 'mainnet', 'testnet' or 'stagenet'");
+
+        long jniWalletHandle = createWalletJni(serializeWalletConfig(config));
+
+        return new MoneroWalletLight(jniWalletHandle);
+    }
+
+    public static MoneroWalletLight createWalletFromKeys(String primaryAddress, String privateViewKey) {
+        return createWalletFromKeys(primaryAddress, privateViewKey, null);
+    }
+
+    public static MoneroWalletLight createWalletFromKeys(String primaryAddress, String privateViewKey, String privateSpendKey) {
+        MoneroWalletConfig config = new MoneroWalletConfig();
+        config.setPrimaryAddress(primaryAddress);
+        config.setPrivateViewKey(privateViewKey);
+        config.setPrivateSpendKey(privateSpendKey);
+        return createWalletFromKeys(config);
+    }
+
+    public static MoneroWalletLight createWalletFromKeys(MoneroWalletConfig config) {
+        if (config.getRestoreHeight() == null) config.setRestoreHeight(0l);
+        if (config.getLanguage() == null) config.setLanguage(DEFAULT_LANGUAGE);
+        if (config.getPassword() == null) config.setPassword("");
+        try {
+            long jniWalletHandle = createWalletJni(serializeWalletConfig(config));
+            return new MoneroWalletLight(jniWalletHandle, config.getPassword());
+        } catch (Exception e) {
+            throw new MoneroError(e.getMessage());
+        }
+    }
 
     public static MoneroWalletLight openWallet(MoneroWalletConfig config) {
         throw new MoneroError("MoneroWalletLight.openWallet not supported yet.");
+    }
+
+    private MoneroWalletLight(long jniWalletHandle) {
+        this(jniWalletHandle, "");
+    }
+
+    private MoneroWalletLight(long jniWalletHandle, String password) {
+        super(jniWalletHandle, password);
     }
 
     /**
@@ -135,6 +176,15 @@ public class MoneroWalletLight extends MoneroWalletJni {
     @Override
     public String getSeedLanguage() {
         throw new MoneroError("MoneroWalletLight.getSeedLanguages() is not supported");
+    }
+
+    /**
+     * Get a list of available languages for the wallet's seed.
+     *
+     * @return the available languages for the wallet's seed.
+     */
+    public static List<String> getSeedLanguages() {
+        return Arrays.asList(getSeedLanguagesJni());
     }
 
     /**
@@ -1347,8 +1397,10 @@ public class MoneroWalletLight extends MoneroWalletJni {
     private native static boolean isSyncedJni();
     private native static String getVersionJni();
     private native static int getNetworkTypeJni();
+    private static native String[] getSeedLanguagesJni();
     private native static String getPrivateViewKeyJni();
     private native static String getPrimaryAddressJni();
+    private native static long createWalletJni(String walletConfigJson);
     private native static long getHeightJni();
     private native static long getRestoreHeightJni();
     private native static void setRestoreHeightJni(long startHeight);

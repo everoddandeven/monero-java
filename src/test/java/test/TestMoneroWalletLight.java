@@ -34,7 +34,7 @@ public class TestMoneroWalletLight extends TestMoneroWalletCommon {
      */
     @Override
     protected MoneroWallet createWallet(MoneroWalletConfig config) {
-        return null;
+        return MoneroWalletLight.createWallet(config);
     }
 
     @Override
@@ -50,6 +50,6 @@ public class TestMoneroWalletLight extends TestMoneroWalletCommon {
      */
     @Override
     protected List<String> getSeedLanguages() {
-        return null;
+        return MoneroWalletLight.getSeedLanguages();
     }
 }

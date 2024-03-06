@@ -219,7 +219,7 @@ public class TestUtils {
   public static MoneroWalletLight getWalletLight() {
     if (walletLight == null || walletFull.isClosed()) {
       // to do create walletLight
-      walletLight = new MoneroWalletLight();
+      walletLight = MoneroWalletLight.createWalletFromKeys(TestUtils.LWS_ADDRESS, TestUtils.LWS_PRIVATE_VIEW_KEY);
       walletLight.setDaemonConnection(TestUtils.WALLET_LWS_DOMAIN, String.valueOf(TestUtils.WALLET_LWS_PORT_START), TestUtils.WALLET_LWS_ADMIN_DOMAIN, String.valueOf(TestUtils.WALLET_LWS_ADMIN_PORT_START));
     }
 

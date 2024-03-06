@@ -6,10 +6,7 @@ import monero.common.MoneroRpcConnection;
 import monero.common.MoneroUtils;
 import monero.daemon.model.MoneroBlock;
 import monero.daemon.model.MoneroTx;
-import monero.wallet.model.MoneroOutputQuery;
-import monero.wallet.model.MoneroOutputWallet;
-import monero.wallet.model.MoneroTxQuery;
-import monero.wallet.model.MoneroTxWallet;
+import monero.wallet.model.*;
 
 import java.math.BigInteger;
 import java.util.*;
@@ -169,4 +166,9 @@ public abstract class MoneroWalletJni extends MoneroWalletDefault {
         return tx;
     }
 
+    protected static String serializeWalletConfig(MoneroWalletConfig config) {
+        Map<String, Object> configMap = JsonUtils.toMap(config);
+        configMap.put("networkType", config.getNetworkType().ordinal());
+        return JsonUtils.serialize(configMap);
+    }
 }
