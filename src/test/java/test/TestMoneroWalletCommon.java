@@ -5557,18 +5557,19 @@ public abstract class TestMoneroWalletCommon {
     }
   }
 
+  protected void testTxWallet(MoneroTxWallet tx) { testTxWallet(tx, null); }
+
   /**
    * Tests a wallet transaction with a test configuration.
-   * 
+   *
    * @param tx is the wallet transaction to test
    * @param ctx provides test context
    *        ctx.wallet is used to cross reference tx info if available
    *        ctx.config specifies the tx's originating config
    *        ctx.isSendResponse indicates if the tx is built from a send response, which contains additional fields (e.g. key)
-   *        ctx.hasDestinations specifies if the tx has an outgoing transfer with destinations, undefined if doesn't matter
+   *        ctx.hasDestinations specifies if the tx has an outgoing transfer with destinations, undefined if it doesn't matter
    *        ctx.includeOutputs specifies if outputs were fetched and should therefore be expected with incoming transfers
    */
-  protected void testTxWallet(MoneroTxWallet tx) { testTxWallet(tx, null); }
   protected void testTxWallet(MoneroTxWallet tx, TxContext ctx) {
     
     // validate / sanitize inputs

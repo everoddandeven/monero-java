@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
+
+import junit.framework.Test;
 import monero.common.MoneroRpcConnection;
 import monero.common.MoneroRpcError;
 import monero.common.MoneroUtils;
@@ -214,12 +216,17 @@ public class TestUtils {
     walletRpc.stopProcess();
   }
 
+  private static MoneroWalletConfig getWalletLightConfig() {
+    MoneroWalletConfig config = new MoneroWalletConfig();
+    return config.setPrimaryAddress(TestUtils.LWS_ADDRESS).setPrivateViewKey(TestUtils.LWS_PRIVATE_VIEW_KEY).setRestoreHeight(TestUtils.LWS_RESTORE_HEIGHT).setNetworkType(MoneroNetworkType.TESTNET);
+  }
+
   private static MoneroWalletLight walletLight;
 
   public static MoneroWalletLight getWalletLight() {
     if (walletLight == null || walletFull.isClosed()) {
       // to do create walletLight
-      walletLight = MoneroWalletLight.createWalletFromKeys(TestUtils.LWS_ADDRESS, TestUtils.LWS_PRIVATE_VIEW_KEY);
+      walletLight = MoneroWalletLight.createWallet(getWalletLightConfig());
       walletLight.setDaemonConnection(TestUtils.WALLET_LWS_DOMAIN, String.valueOf(TestUtils.WALLET_LWS_PORT_START), TestUtils.WALLET_LWS_ADMIN_DOMAIN, String.valueOf(TestUtils.WALLET_LWS_ADMIN_PORT_START));
     }
 
