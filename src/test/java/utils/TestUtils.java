@@ -91,9 +91,7 @@ public class TestUtils {
   public static final String LANGUAGE = "English";
   public static final String SEED = "silk mocked cucumber lettuce hope adrenalin aching lush roles fuel revamp baptism wrist long tender teardrop midst pastry pigment equip frying inbound pinched ravine frying";
   public static final String ADDRESS = "A1y9sbVt8nqhZAVm3me1U18rUVXcjeNKuBd1oE2cTs8biA9cozPMeyYLhe77nPv12JA3ejJN3qprmREriit2fi6tJDi99RR";
-  public static final String LWS_ADDRESS = "9yEdYhU2ZAeGTgj9VdjvVk4vvnusdRpegJd98nCbsLh2Jj9xjbiRGFf6ZidwmNaXv5j2yYPZBzrDB9uoP88aJcVkMKHmbqZ";
-  public static final String LWS_PRIVATE_VIEW_KEY = "4d0090d149e808beac0a46ee93e0a9a9aeb15d241b5953fde26a821866621d0f";
-  public static final long LWS_RESTORE_HEIGHT = 2350000;
+  public static final String PRIVATE_VIEW_KEY = "198820da9166ee114203eb38c29e00b0e8fc7df508aa632d56ead849093d3808";
   public static final long FIRST_RECEIVE_HEIGHT = 171; // NOTE: this value must be the height of the wallet's first tx for tests
   public static final long SYNC_PERIOD_IN_MS = 5000; // period between wallet syncs in milliseconds
   public static final String OFFLINE_SERVER_URI = "offline_server_uri"; // dummy server uri to remain offline because wallet2 connects to default if not given
@@ -216,9 +214,9 @@ public class TestUtils {
     walletRpc.stopProcess();
   }
 
-  private static MoneroWalletConfig getWalletLightConfig() {
+  public static MoneroWalletConfig getWalletLightConfig() {
     MoneroWalletConfig config = new MoneroWalletConfig();
-    return config.setPrimaryAddress(TestUtils.LWS_ADDRESS).setPrivateViewKey(TestUtils.LWS_PRIVATE_VIEW_KEY).setRestoreHeight(TestUtils.LWS_RESTORE_HEIGHT).setNetworkType(MoneroNetworkType.TESTNET);
+    return config.setPrimaryAddress(TestUtils.ADDRESS).setPrivateViewKey(TestUtils.PRIVATE_VIEW_KEY).setRestoreHeight(TestUtils.FIRST_RECEIVE_HEIGHT).setNetworkType(MoneroNetworkType.TESTNET);
   }
 
   private static MoneroWalletLight walletLight;
@@ -230,8 +228,8 @@ public class TestUtils {
       walletLight.setDaemonConnection(TestUtils.WALLET_LWS_DOMAIN, String.valueOf(TestUtils.WALLET_LWS_PORT_START), TestUtils.WALLET_LWS_ADMIN_DOMAIN, String.valueOf(TestUtils.WALLET_LWS_ADMIN_PORT_START));
     }
 
-    assertEquals(TestUtils.LWS_PRIVATE_VIEW_KEY, walletLight.getPrivateViewKey());
-    assertEquals(TestUtils.LWS_ADDRESS, walletLight.getPrimaryAddress());
+    assertEquals(TestUtils.PRIVATE_VIEW_KEY, walletLight.getPrivateViewKey());
+    assertEquals(TestUtils.ADDRESS, walletLight.getPrimaryAddress());
 
     return walletLight;
   }
