@@ -8,8 +8,11 @@ import monero.wallet.model.MoneroOutputQuery;
 import monero.wallet.model.MoneroSyncResult;
 import monero.wallet.model.MoneroWalletConfig;
 
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.junit.jupiter.api.TestInstance;
 
 import utils.TestUtils;
@@ -25,12 +28,24 @@ import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)  // so @BeforeAll and @AfterAll can be used on non-static functions
+@TestInstance(Lifecycle.PER_CLASS)  // so @BeforeAll and @AfterAll can be used on non-static functions
 
 public class TestMoneroWalletLight extends TestMoneroWalletCommon {
 
     public TestMoneroWalletLight() {
         super();
+    }
+
+    @Override
+    @BeforeAll
+    public void beforeAll() {
+      super.beforeAll();
+    }
+    
+    @Override
+    @AfterAll
+    public void afterAll() {
+      super.afterAll();
     }
 
     @Override
