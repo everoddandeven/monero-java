@@ -216,7 +216,7 @@ public class TestUtils {
 
   public static MoneroWalletConfig getWalletLightConfig() {
     MoneroWalletConfig config = new MoneroWalletConfig();
-    return config.setPrimaryAddress(TestUtils.ADDRESS).setPrivateViewKey(TestUtils.PRIVATE_VIEW_KEY).setRestoreHeight(TestUtils.FIRST_RECEIVE_HEIGHT).setNetworkType(MoneroNetworkType.TESTNET);
+    return config.setPrimaryAddress(TestUtils.ADDRESS).setPrivateViewKey(TestUtils.PRIVATE_VIEW_KEY).setRestoreHeight(TestUtils.FIRST_RECEIVE_HEIGHT).setNetworkType(MoneroNetworkType.TESTNET).setServerUri(TestUtils.WALLET_LWS_URI);
   }
 
   private static MoneroWalletLight walletLight;
