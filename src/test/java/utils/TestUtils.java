@@ -21,6 +21,7 @@ import monero.common.MoneroUtils;
 import monero.daemon.MoneroDaemonRpc;
 import monero.daemon.model.MoneroNetworkType;
 import monero.wallet.MoneroWalletFull;
+import monero.wallet.MoneroWalletLight;
 import monero.wallet.MoneroWalletRpc;
 import monero.wallet.model.MoneroTxWallet;
 import monero.wallet.model.MoneroWalletConfig;
@@ -67,6 +68,14 @@ public class TestUtils {
   public static final String WALLET_RPC_LOCAL_WALLET_DIR = MONERO_BINS_DIR;
   public static final String WALLET_RPC_ACCESS_CONTROL_ORIGINS = "http://localhost:8080"; // cors access from web browser
   
+  // monero wallet lws configuration (change per your configuration)
+  public static final int WALLET_LWS_PORT_START = 8443;
+  public static final int WALLET_LWS_ADMIN_PORT_START = 8444;
+  public static final String WALLET_LWS_DOMAIN = "localhost";
+  public static final String WALLET_LWS_ADMIN_DOMAIN = "localhost";
+  public static final String WALLET_LWS_URI = WALLET_LWS_DOMAIN + ":" + WALLET_LWS_PORT_START;
+  public static final String WALLET_LWS_ADMIN_URI = WALLET_LWS_ADMIN_DOMAIN + ":" + WALLET_LWS_ADMIN_PORT_START;
+
   // test wallet config
   public static final String WALLET_NAME = "test_wallet_1";
   public static final String WALLET_PASSWORD = "supersecretpassword123";
@@ -77,9 +86,15 @@ public class TestUtils {
   public static final BigInteger MAX_FEE = BigInteger.valueOf(7500000).multiply(BigInteger.valueOf(10000));
   public static final MoneroNetworkType NETWORK_TYPE = MoneroNetworkType.TESTNET;
   public static final String LANGUAGE = "English";
-  public static final String SEED = "silk mocked cucumber lettuce hope adrenalin aching lush roles fuel revamp baptism wrist long tender teardrop midst pastry pigment equip frying inbound pinched ravine frying";
-  public static final String ADDRESS = "A1y9sbVt8nqhZAVm3me1U18rUVXcjeNKuBd1oE2cTs8biA9cozPMeyYLhe77nPv12JA3ejJN3qprmREriit2fi6tJDi99RR";
-  public static final long FIRST_RECEIVE_HEIGHT = 171; // NOTE: this value must be the height of the wallet's first tx for tests
+  //public static final String SEED = "silk mocked cucumber lettuce hope adrenalin aching lush roles fuel revamp baptism wrist long tender teardrop midst pastry pigment equip frying inbound pinched ravine frying";
+  //public static final String ADDRESS = "A1y9sbVt8nqhZAVm3me1U18rUVXcjeNKuBd1oE2cTs8biA9cozPMeyYLhe77nPv12JA3ejJN3qprmREriit2fi6tJDi99RR";
+  //public static final String PRIVATE_VIEW_KEY = "198820da9166ee114203eb38c29e00b0e8fc7df508aa632d56ead849093d3808";
+  //public static final long FIRST_RECEIVE_HEIGHT = 171; // NOTE: this value must be the height of the wallet's first tx for tests
+  public static final String SEED = "akin mobile observant polar farming abducts casket regular jeers sickness cuffs decay video exotic blip dove towel vapidly viking greater reinvest jackets jaws lesson video";
+  public static final String ADDRESS = "9yEdYhU2ZAeGTgj9VdjvVk4vvnusdRpegJd98nCbsLh2Jj9xjbiRGFf6ZidwmNaXv5j2yYPZBzrDB9uoP88aJcVkMKHmbqZ";
+  public static final String PRIVATE_VIEW_KEY = "4d0090d149e808beac0a46ee93e0a9a9aeb15d241b5953fde26a821866621d0f";
+  public static final long FIRST_RECEIVE_HEIGHT = 2350057; // NOTE: this value must be the height of the wallet's first tx for tests
+  
   public static final long SYNC_PERIOD_IN_MS = 5000; // period between wallet syncs in milliseconds
   public static final String OFFLINE_SERVER_URI = "offline_server_uri"; // dummy server uri to remain offline because wallet2 connects to default if not given
   public static final long AUTO_CONNECT_TIMEOUT_MS = 2000;
@@ -240,6 +255,25 @@ public class TestUtils {
     return walletFull;
   }
   
+  public static MoneroWalletConfig getWalletLightConfig() {
+    MoneroWalletConfig config = new MoneroWalletConfig();
+    return config.setRestoreHeight(TestUtils.FIRST_RECEIVE_HEIGHT).setNetworkType(MoneroNetworkType.TESTNET).setServerUri(TestUtils.WALLET_LWS_URI).setSeed(TestUtils.SEED);
+  }
+
+  private static MoneroWalletLight walletLight;
+  public static MoneroWalletLight getWalletLight() {
+    if (walletLight == null || walletLight.isClosed()) {
+      // to do create walletLight
+      walletLight = MoneroWalletLight.createWallet(getWalletLightConfig());
+    }
+
+    assertEquals(TestUtils.PRIVATE_VIEW_KEY, walletLight.getPrivateViewKey());
+    assertEquals(TestUtils.ADDRESS, walletLight.getPrimaryAddress());
+    assertEquals(TestUtils.SEED, walletLight.getSeed());
+
+    return walletLight;
+  }
+
   /**
    * Creates a new wallet considered to be "ground truth".
    * 
