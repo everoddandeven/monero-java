@@ -14,6 +14,8 @@ import java.util.Map;
 import monero.daemon.model.MoneroOutput;
 import monero.daemon.model.MoneroTx;
 import monero.wallet.MoneroWallet;
+import monero.wallet.MoneroWalletFull;
+import monero.wallet.MoneroWalletLight;
 import monero.wallet.MoneroWalletRpc.IncomingTransferComparator;
 import monero.wallet.model.MoneroAccount;
 import monero.wallet.model.MoneroIncomingTransfer;
@@ -31,6 +33,17 @@ import monero.wallet.model.MoneroTxWallet;
  */
 public class WalletEqualityUtils {
 
+  public static boolean walletsAreSynced(MoneroWallet w1, MoneroWallet w2) {
+    long w1Height = w1.getHeight();
+    long w2Height = w2.getHeight();
+    
+    // hope this is temporary until lws fix it
+    if(w1 instanceof MoneroWalletLight) w1Height++;
+    if(w2 instanceof MoneroWalletLight) w2Height++;
+
+    return w1Height == w2Height;
+  }
+
   /**
    * Compares two wallets for equality using only on-chain data.
    * 
@@ -47,7 +60,7 @@ public class WalletEqualityUtils {
     if (w1.isConnectedToDaemon()) TestUtils.WALLET_TX_TRACKER.waitForWalletTxsToClearPool(w1, w2);
     
     // sync the wallets until same height
-    while (w1.getHeight() != w2.getHeight()) {
+    while (!walletsAreSynced(w1, w2)) {
       w1.sync();
       w2.sync();
     }

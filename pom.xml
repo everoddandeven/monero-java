@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>io.github.woodser</groupId>
 	<artifactId>monero-java</artifactId>
-	<version>0.8.10</version>
+	<version>0.8.21</version>
 	<name>Monero Java Library</name>
 	<description>A Java library for using Monero</description>
 	<url>https://github.com/woodser/monero-java</url>
@@ -15,6 +15,14 @@
 		<jackson-version>[2.13.1, 2.13.2.2]</jackson-version>
 		<maven.test.skip>true</maven.test.skip>
 	</properties>
+	<build>
+    	<testSourceDirectory>${project.basedir}/src/test/java</testSourceDirectory>
+		<resources>
+			<resource>
+				<directory>lib</directory>
+			</resource>
+		</resources>
+  	</build>
 
 	<dependencies>
 		<dependency>

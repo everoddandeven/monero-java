@@ -4,9 +4,13 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import common.utils.GenUtils;
 import common.utils.JsonUtils;
 import java.io.File;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -24,30 +28,102 @@ import org.bouncycastle.jcajce.provider.digest.Keccak;
  * Collection of Monero utilities.
  */
 public class MoneroUtils {
-  
-  // load JNI binding if available
-  private static boolean JNI_LOADED = false;
-  static {
-    try { loadNativeLibrary(); }
-    catch (UnsatisfiedLinkError e) { }
-  }
-  
+
   /**
    * Get the version of the monero-java library.
    * 
    * @return the version of this monero-java library
    */
   public static String getVersion() {
-    return "0.8.10";
+    return "0.8.21";
   }
-  
+
+  // try to load jni bindings
+  static {
+    tryLoadNativeLibrary();
+  }
+
   /**
-   * Load the native library.
+   * Try to load the native library if not already loaded.
    */
+  public static void tryLoadNativeLibrary() {
+    if (!MoneroUtils.isNativeLibraryLoaded()) {
+      try { MoneroUtils.loadNativeLibrary(); }
+      catch (Exception | UnsatisfiedLinkError e) { }
+    }
+  }
+
   public static void loadNativeLibrary() {
-    String libName = (System.getProperty("os.name").toLowerCase().contains("windows") ? "lib" : "") + "monero-java";
-    System.loadLibrary(libName);
-    JNI_LOADED = true;
+
+    // try to load from java library path
+    try {
+      String libName = (System.getProperty("os.name").toLowerCase().contains("windows") ? "lib" : "") + "monero-java";
+      System.loadLibrary(libName);
+    } catch (Exception | UnsatisfiedLinkError e) {
+      // ignore error
+    }
+
+    // try to load from resources (e.g. in jar)
+    Path tempDir = null;
+    String[] libraryFiles = null;
+    try {
+
+      // get system info
+      String osName = System.getProperty("os.name").toLowerCase();
+      String osArch = System.getProperty("os.arch").toLowerCase();
+
+      // get library file names and paths
+      String libraryPath = "/";
+      String libraryCppFile = null;
+      String libraryJavaFile = null;
+      if (osName.contains("windows")) {
+        libraryPath += "windows/";
+        libraryFiles = new String[] { "libmonero-cpp.dll", "libmonero-cpp.dll.a", "libmonero-java.dll", "libmonero-java.dll.a" };
+        libraryCppFile = "libmonero-cpp.dll";
+        libraryJavaFile = "libmonero-java.dll";
+      } else if (osName.contains("linux")) {
+        libraryPath += osArch.contains("aarch64") ? "linux-arm64/" : "linux-x86_64/";
+        libraryFiles = new String[] { "libmonero-cpp.so", "libmonero-java.so" };
+        libraryCppFile = "libmonero-cpp.so";
+        libraryJavaFile = "libmonero-java.so";
+      } else if (osName.contains("mac")) {
+        libraryPath += osArch.contains("aarch64") ? "mac-arm64/" : "mac-x86_64/";
+        libraryFiles = new String[] { "libmonero-cpp.dylib", "libmonero-java.dylib" };
+        libraryCppFile = "libmonero-cpp.dylib";
+        libraryJavaFile = "libmonero-java.dylib";
+      } else {
+        throw new UnsupportedOperationException("Unsupported operating system: " + osName);
+      }
+
+      // copy all library files to temp directory
+      tempDir = Files.createTempDirectory("libmonero");
+      for (String libraryFile : libraryFiles) {
+        try (InputStream inputStream = MoneroUtils.class.getResourceAsStream(libraryPath + libraryFile); OutputStream outputStream = Files.newOutputStream(tempDir.resolve(libraryFile))) {
+          byte[] buffer = new byte[1024];
+          int bytesRead;
+          while ((bytesRead = inputStream.read(buffer)) != -1) {
+            outputStream.write(buffer, 0, bytesRead);
+          }
+        }
+      }
+
+      // load native libraries
+      System.load(tempDir.resolve(libraryCppFile).toString());
+      System.load(tempDir.resolve(libraryJavaFile).toString());
+    } catch (Exception e) {
+      throw new MoneroError(e);
+    } finally {
+
+      // try to delete temporary files and folder
+      try {
+        if (tempDir != null) {
+          for (String libraryFile : libraryFiles) Files.delete(tempDir.resolve(libraryFile));
+          Files.delete(tempDir);
+        }
+      } catch (Exception e) {
+        //e.printStackTrace();
+      }
+    }
   }
   
   /**
@@ -56,7 +132,12 @@ public class MoneroUtils {
    * @return true if the native library is loaded, false otherwise
    */
   public static boolean isNativeLibraryLoaded() {
-    return JNI_LOADED;
+    try {
+      mapToBinary(new HashMap<>());
+      return true;
+    } catch (Exception | UnsatisfiedLinkError e) {
+      return false;
+    }
   }
   
   public static final int RING_SIZE = 12; // network-enforced ring size
@@ -457,7 +538,7 @@ public class MoneroUtils {
   public static void setLogLevel(int level) {
     GenUtils.assertTrue("Log level must be an integer >= 0", level >= 0);
     MoneroUtils.LOG_LEVEL = level;
-    if (JNI_LOADED) setLogLevelJni(level);
+    if (isNativeLibraryLoaded()) setLogLevelJni(level);
   }
   
   /**
