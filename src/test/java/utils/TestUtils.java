@@ -271,6 +271,11 @@ public class TestUtils {
     assertEquals(TestUtils.ADDRESS, walletLight.getPrimaryAddress());
     assertEquals(TestUtils.SEED, walletLight.getSeed());
 
+    // sync and save wallet
+    walletLight.sync(new WalletSyncPrinter());
+    walletLight.save();
+    walletLight.startSyncing(TestUtils.SYNC_PERIOD_IN_MS);
+
     return walletLight;
   }
 
