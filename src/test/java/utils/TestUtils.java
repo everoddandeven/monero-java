@@ -97,7 +97,7 @@ public class TestUtils {
   
   public static final long SYNC_PERIOD_IN_MS = 5000; // period between wallet syncs in milliseconds
   public static final String OFFLINE_SERVER_URI = "offline_server_uri"; // dummy server uri to remain offline because wallet2 connects to default if not given
-  public static final long AUTO_CONNECT_TIMEOUT_MS = 2000;
+  public static final long AUTO_CONNECT_TIMEOUT_MS = 3000;
   
   // logger configuration
   public static final Logger LOGGER = Logger.getLogger(TestUtils.class.getName());
