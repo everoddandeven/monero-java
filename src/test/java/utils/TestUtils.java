@@ -90,9 +90,9 @@ public class TestUtils {
   //public static final String ADDRESS = "A1y9sbVt8nqhZAVm3me1U18rUVXcjeNKuBd1oE2cTs8biA9cozPMeyYLhe77nPv12JA3ejJN3qprmREriit2fi6tJDi99RR";
   //public static final String PRIVATE_VIEW_KEY = "198820da9166ee114203eb38c29e00b0e8fc7df508aa632d56ead849093d3808";
   //public static final long FIRST_RECEIVE_HEIGHT = 171; // NOTE: this value must be the height of the wallet's first tx for tests
-  public static final String SEED = "akin mobile observant polar farming abducts casket regular jeers sickness cuffs decay video exotic blip dove towel vapidly viking greater reinvest jackets jaws lesson video";
-  public static final String ADDRESS = "9yEdYhU2ZAeGTgj9VdjvVk4vvnusdRpegJd98nCbsLh2Jj9xjbiRGFf6ZidwmNaXv5j2yYPZBzrDB9uoP88aJcVkMKHmbqZ";
-  public static final String PRIVATE_VIEW_KEY = "4d0090d149e808beac0a46ee93e0a9a9aeb15d241b5953fde26a821866621d0f";
+  public static final String SEED = "eavesdrop september unplugs aztec vary kickoff adjust emerge batch dialect nowhere ramped ringing oust circle pockets whipped nudged ripped oasis sovereign awkward cupcake dude pockets";
+  public static final String ADDRESS = "A2sHbJxpEkvMkxM7hyQ3c89gAfCjpZvcaNpG4HSrgdUc8W4WeRiRdvY5FRzHkBWzR5fVj3tMnQbTxgZru5gz1N9ePhv5GSB";
+  public static final String PRIVATE_VIEW_KEY = "b774f4f72d4f3c202a47926f5233e0ab5922a0b4e3d4d49a3c58f333e42c780e";
   public static final long FIRST_RECEIVE_HEIGHT = 2350057; // NOTE: this value must be the height of the wallet's first tx for tests
   
   public static final long SYNC_PERIOD_IN_MS = 5000; // period between wallet syncs in milliseconds

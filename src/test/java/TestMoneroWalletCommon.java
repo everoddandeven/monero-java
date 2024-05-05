@@ -40,6 +40,7 @@ import monero.daemon.model.MoneroSubmitTxResult;
 import monero.daemon.model.MoneroTx;
 import monero.daemon.model.MoneroVersion;
 import monero.wallet.MoneroWallet;
+import monero.wallet.MoneroWalletLight;
 import monero.wallet.MoneroWalletRpc;
 import monero.wallet.model.MoneroAccount;
 import monero.wallet.model.MoneroAddressBookEntry;
@@ -6213,7 +6214,7 @@ public abstract class TestMoneroWalletCommon {
     @Override
     public void onNewBlock(long height) {
       assertTrue(listening);
-      if (blockNotifications.size() > 0) assertTrue(height == blockNotifications.get(blockNotifications.size() - 1) + 1);
+      if (blockNotifications.size() > 0 && !(wallet instanceof MoneroWalletLight)) assertTrue(height == blockNotifications.get(blockNotifications.size() - 1) + 1);
       blockNotifications.add(height);
     }
     

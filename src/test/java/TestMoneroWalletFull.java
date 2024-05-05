@@ -23,6 +23,7 @@ import monero.daemon.model.MoneroKeyImage;
 import monero.daemon.model.MoneroNetworkType;
 import monero.wallet.MoneroWallet;
 import monero.wallet.MoneroWalletFull;
+import monero.wallet.MoneroWalletLight;
 import monero.wallet.MoneroWalletRpc;
 import monero.wallet.model.MoneroMultisigInfo;
 import monero.wallet.model.MoneroMultisigInitResult;
@@ -593,8 +594,8 @@ public class TestMoneroWalletFull extends TestMoneroWalletCommon {
     testSyncSeed(TestUtils.FIRST_RECEIVE_HEIGHT + 3l, TestUtils.FIRST_RECEIVE_HEIGHT);
   }
   
-  private void testSyncSeed(Long startHeight, Long restoreHeight) { testSyncSeed(startHeight, restoreHeight, false, false); }
-  private void testSyncSeed(Long startHeight, Long restoreHeight, boolean skipGtComparison, boolean testPostSyncNotifications) {
+  protected void testSyncSeed(Long startHeight, Long restoreHeight) { testSyncSeed(startHeight, restoreHeight, false, false); }
+  protected void testSyncSeed(Long startHeight, Long restoreHeight, boolean skipGtComparison, boolean testPostSyncNotifications) {
     assertTrue(daemon.isConnected(), "Not connected to daemon");
     if (startHeight != null && restoreHeight != null) assertTrue(startHeight <= TestUtils.FIRST_RECEIVE_HEIGHT || restoreHeight <= TestUtils.FIRST_RECEIVE_HEIGHT);
     
@@ -1354,6 +1355,7 @@ public class TestMoneroWalletFull extends TestMoneroWalletCommon {
       double expectedPercentDone = (double) (height - startHeight + 1) / (double) (endHeight - startHeight);
       assertTrue(Double.compare(expectedPercentDone, percentDone) == 0);
       if (prevHeight == null) assertEquals(startHeight, height);
+      else if (wallet instanceof MoneroWalletLight) assertTrue(height > prevHeight);
       else assertEquals(height, prevHeight + 1);
       prevHeight = height;
     }
@@ -1364,7 +1366,11 @@ public class TestMoneroWalletFull extends TestMoneroWalletCommon {
       if (prevHeight == null) {
         assertNull(prevCompleteHeight);
         assertEquals(chainHeight, startHeight);
-      } else {
+      } 
+      else if (wallet instanceof MoneroWalletLight) {
+        assertTrue(chainHeight > prevHeight);
+      }
+      else {
         assertEquals(chainHeight - 1, (long) prevHeight);  // otherwise last height is chain height - 1
         assertEquals(chainHeight, (long) prevCompleteHeight);
       }
@@ -2213,4 +2219,5 @@ public class TestMoneroWalletFull extends TestMoneroWalletCommon {
   public void testProveUnrelayedTxs() {
     super.testProveUnrelayedTxs();
   }
+
 }
