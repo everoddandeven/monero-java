@@ -5914,6 +5914,7 @@ public abstract class TestMoneroWalletCommon {
         sum = sum.add(destination.getAmount());
       }
       if (!transfer.getAmount().equals(sum)) System.out.println(transfer.getTx().getTxSet() == null ? transfer.getTx().toString() : transfer.getTx().getTxSet().toString());
+      // what if one of destinations is a change address? amount will be lower       
       assertEquals(sum, transfer.getAmount());
     }
   }

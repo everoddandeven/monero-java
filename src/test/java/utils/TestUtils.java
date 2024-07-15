@@ -81,7 +81,7 @@ public class TestUtils {
   public static final String WALLET_PASSWORD = "supersecretpassword123";
   public static final String TEST_WALLETS_DIR = "./test_wallets";
   public static final String WALLET_FULL_PATH = TEST_WALLETS_DIR + "/" + WALLET_NAME;
-  
+  public static final String WALLET_LIGHT_PATH = TEST_WALLETS_DIR + "/test_wallet_light"; 
   // test wallet constants
   public static final BigInteger MAX_FEE = BigInteger.valueOf(7500000).multiply(BigInteger.valueOf(10000));
   public static final MoneroNetworkType NETWORK_TYPE = MoneroNetworkType.TESTNET;
@@ -90,10 +90,10 @@ public class TestUtils {
   //public static final String ADDRESS = "A1y9sbVt8nqhZAVm3me1U18rUVXcjeNKuBd1oE2cTs8biA9cozPMeyYLhe77nPv12JA3ejJN3qprmREriit2fi6tJDi99RR";
   //public static final String PRIVATE_VIEW_KEY = "198820da9166ee114203eb38c29e00b0e8fc7df508aa632d56ead849093d3808";
   //public static final long FIRST_RECEIVE_HEIGHT = 171; // NOTE: this value must be the height of the wallet's first tx for tests
-  public static final String SEED = "eavesdrop september unplugs aztec vary kickoff adjust emerge batch dialect nowhere ramped ringing oust circle pockets whipped nudged ripped oasis sovereign awkward cupcake dude pockets";
-  public static final String ADDRESS = "A2sHbJxpEkvMkxM7hyQ3c89gAfCjpZvcaNpG4HSrgdUc8W4WeRiRdvY5FRzHkBWzR5fVj3tMnQbTxgZru5gz1N9ePhv5GSB";
-  public static final String PRIVATE_VIEW_KEY = "b774f4f72d4f3c202a47926f5233e0ab5922a0b4e3d4d49a3c58f333e42c780e";
-  public static final long FIRST_RECEIVE_HEIGHT = 2350057; // NOTE: this value must be the height of the wallet's first tx for tests
+  public static final String SEED = "gang sunken soya nautical gone woozy pram imitate iceberg wade wives unknown anybody distance cigar fungal outbreak quick goggles voucher simplest suffice jive jive iceberg";
+  public static final String ADDRESS = "A19buHUcWkLTq79ExrEhazUCbVdGLeEQqEMMeBMncAEggWaU3h2H68M2Duf4mrZzwainYSWARpjsGgxwykP7XczCMbBHRCC";
+  public static final String PRIVATE_VIEW_KEY = "44468fcffea57b6550cd3fc9c0503e06fa02b1c44fa4c31c79426454df7c1b0d";
+  public static final long FIRST_RECEIVE_HEIGHT = 2537009; // NOTE: this value must be the height of the wallet's first tx for tests
   
   public static final long SYNC_PERIOD_IN_MS = 5000; // period between wallet syncs in milliseconds
   public static final String OFFLINE_SERVER_URI = "offline_server_uri"; // dummy server uri to remain offline because wallet2 connects to default if not given
@@ -262,9 +262,26 @@ public class TestUtils {
 
   private static MoneroWalletLight walletLight;
   public static MoneroWalletLight getWalletLight() {
+    
     if (walletLight == null || walletLight.isClosed()) {
-      // to do create walletLight
-      walletLight = MoneroWalletLight.createWallet(getWalletLightConfig());
+      // create wallet from seed if it doesn't exist
+      if (!MoneroWalletLight.walletExists(WALLET_LIGHT_PATH)) {
+    
+        // create directory for test wallets if it doesn't exist
+        File testWalletsDir = new File(TestUtils.TEST_WALLETS_DIR);
+        if (!testWalletsDir.exists()) testWalletsDir.mkdirs();
+        
+        // create wallet with connection
+        MoneroRpcConnection daemonConnection = new MoneroRpcConnection(WALLET_LWS_URI, "", "");
+        walletLight = MoneroWalletLight.createWallet(new MoneroWalletConfig().setPath(TestUtils.WALLET_LIGHT_PATH).setPassword(TestUtils.WALLET_PASSWORD).setNetworkType(NETWORK_TYPE).setSeed(TestUtils.SEED).setServer(daemonConnection).setRestoreHeight(FIRST_RECEIVE_HEIGHT));
+        assertEquals(TestUtils.FIRST_RECEIVE_HEIGHT, walletLight.getRestoreHeight());
+        assertEquals(daemonConnection, walletLight.getDaemonConnection());
+      }
+      // otherwise open existing wallet and update daemon connection
+      else {
+        walletLight = MoneroWalletLight.openWallet(WALLET_LIGHT_PATH, WALLET_PASSWORD, TestUtils.NETWORK_TYPE);
+        walletLight.setDaemonConnection(new MoneroRpcConnection(WALLET_LWS_URI, "", ""));
+      }
     }
 
     assertEquals(TestUtils.PRIVATE_VIEW_KEY, walletLight.getPrivateViewKey());
