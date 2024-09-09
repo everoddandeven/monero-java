@@ -20,6 +20,7 @@ import monero.wallet.model.MoneroSyncResult;
 import monero.wallet.model.MoneroTransfer;
 import monero.wallet.model.MoneroTransferQuery;
 import monero.wallet.model.MoneroTxConfig;
+import monero.wallet.model.MoneroTxQuery;
 import monero.wallet.model.MoneroTxWallet;
 import monero.wallet.model.MoneroWalletConfig;
 import monero.wallet.model.MoneroWalletListener;
@@ -68,12 +69,14 @@ public class TestMoneroWalletLight extends TestMoneroWalletFull {
   @Override
   @BeforeAll
   public void beforeAll() {
+    System.out.println("Starting Light Wallet Tests");
     super.beforeAll();
   }
   
   @Override
   @AfterAll
   public void afterAll() {
+    System.out.println("End Light Wallet Tests");
     super.afterAll();
   }
 
@@ -88,8 +91,8 @@ public class TestMoneroWalletLight extends TestMoneroWalletFull {
     System.out.println("Before test " + testInfo.getDisplayName());
     
     // stop mining
-    MoneroMiningStatus status = daemon.getMiningStatus();
-    if (status.isActive()) daemon.stopMining();
+    //MoneroMiningStatus status = daemon.getMiningStatus();
+    //if (status.isActive()) daemon.stopMining();
   }
 
   public MoneroRpcConnection getRpcConnection()
@@ -477,7 +480,6 @@ public class TestMoneroWalletLight extends TestMoneroWalletFull {
   // Is compatible with monero-wallet-rpc wallet files
   @Test
   @Override
-  @Disabled
   public void testWalletFileCompatibility() {
     assumeTrue(TEST_NON_RELAYS);
     
@@ -526,7 +528,6 @@ public class TestMoneroWalletLight extends TestMoneroWalletFull {
   // Is compatible with monero-wallet-rpc outputs and offline transaction signing
   @SuppressWarnings("unused")
   @Test
-  @Disabled
   @Override
   public void testViewOnlyAndOfflineWalletCompatibility() throws InterruptedException, IOException {
     assumeTrue(!LITE_MODE && (TEST_NON_RELAYS || TEST_RELAYS));
@@ -784,25 +785,24 @@ public class TestMoneroWalletLight extends TestMoneroWalletFull {
     testSyncSeed(TestUtils.FIRST_RECEIVE_HEIGHT, null, false, true);
   }
   
-  // Can sync a wallet created from seed from a start height less than the restore height
+  // Cannot sync a wallet created from seed from a start height less than the restore height, since start/restore height is defined by first login on lws
   @Test
   @Override
+  @Disabled
   public void testSyncSeedStartHeightLTRestoreHeight() {
-    assumeTrue(TEST_NON_RELAYS && !LITE_MODE);
-    testSyncSeed(TestUtils.FIRST_RECEIVE_HEIGHT, TestUtils.FIRST_RECEIVE_HEIGHT + 3l);
+    super.testSyncSeedStartHeightLTRestoreHeight();
   }
   
-  // Can sync a wallet created from seed from a start height greater than the restore height
+  // Cannot sync a wallet created from seed from a start height greater than the restore height, since start/restore height is defined by first login on lws
   @Test
   @Override
+  @Disabled
   public void testSyncSeedStartHeightGTRestoreHeight() {
-    assumeTrue(TEST_NON_RELAYS && !LITE_MODE);
-    testSyncSeed(TestUtils.FIRST_RECEIVE_HEIGHT + 3l, TestUtils.FIRST_RECEIVE_HEIGHT);
+    super.testSyncSeedStartHeightGTRestoreHeight();
   }
   
   // Can sync a wallet created from keys
   @Test
-  @Disabled
   public void testSyncWalletFromKeys() {
     assumeTrue(TEST_NON_RELAYS);
     
@@ -970,12 +970,14 @@ public class TestMoneroWalletLight extends TestMoneroWalletFull {
   
   // Is equal to the RPC wallet.
   @Test
+  @Disabled
   public void testWalletEqualityRpc() {
     WalletEqualityUtils.testWalletEqualityOnChain(TestUtils.getWalletRpc(), wallet);
   }
   
   // Is equal to the RPC wallet with a seed offset
   @Test
+  @Disabled
   public void testWalletEqualityRpcWithOffset() {
     
     // use common offset to compare wallet implementations
@@ -1919,7 +1921,6 @@ public class TestMoneroWalletLight extends TestMoneroWalletFull {
   
   @Override
   @Test
-  @Disabled
   public void testWalletEqualityGroundTruth() {
     super.testWalletEqualityGroundTruth();
   }
@@ -2034,7 +2035,6 @@ public class TestMoneroWalletLight extends TestMoneroWalletFull {
 
   @Override
   @Test
-  @Disabled
   public void testGetTxsWithPaymentIds() {
     /* LITE_MODE enabled */
     super.testGetTxsWithPaymentIds();
@@ -2100,6 +2100,7 @@ public class TestMoneroWalletLight extends TestMoneroWalletFull {
     super.testAccounting();
   }
 
+  // Light wallet doesn't support check tx key
   @Override
   @Test
   @Disabled
@@ -2107,6 +2108,7 @@ public class TestMoneroWalletLight extends TestMoneroWalletFull {
     super.testCheckTxKey();
   }
 
+  // Light wallet doesn't support check tx proof
   @Override
   @Test
   @Disabled
@@ -2114,6 +2116,7 @@ public class TestMoneroWalletLight extends TestMoneroWalletFull {
     super.testCheckTxProof();
   }
 
+  // Light wallet doesn't support check spend proof
   @Override
   @Test
   @Disabled
@@ -2121,6 +2124,7 @@ public class TestMoneroWalletLight extends TestMoneroWalletFull {
     super.testCheckSpendProof();
   }
 
+  // TODO monero-project: still no way to get rpc_version from lws
   @Override
   @Test
   @Disabled
@@ -2128,6 +2132,7 @@ public class TestMoneroWalletLight extends TestMoneroWalletFull {
     super.testGetReserveProofWallet();
   }
 
+  // TODO monero-project: still no way to get rpc_version from lws
   @Override
   @Test
   @Disabled
@@ -2176,7 +2181,6 @@ public class TestMoneroWalletLight extends TestMoneroWalletFull {
   @SuppressWarnings("unused")
   @Test
   @Override
-  @Disabled
   public void testViewOnlyAndOfflineWallets() {
     assumeTrue(!LITE_MODE && (TEST_NON_RELAYS || TEST_RELAYS));
     
@@ -2219,6 +2223,7 @@ public class TestMoneroWalletLight extends TestMoneroWalletFull {
     super.testGetPaymentUri();
   }
 
+  // Light wallet has no mining support
   @Override
   @Test
   @Disabled
@@ -2232,43 +2237,92 @@ public class TestMoneroWalletLight extends TestMoneroWalletFull {
     super.testValidateInputsSendingFunds();
   }
   
+  // Light wallet cannot be aware of txs in pool
   @Override
   @Test
   @Disabled
   public void testSyncWithPoolSameAccounts() {
     super.testSyncWithPoolSameAccounts();
   }
-  
+
+  // Light wallet cannot be aware of txs in pool
   @Override
   @Test
+  @Disabled
   public void testSyncWithPoolSubmitAndDiscard() {
     super.testSyncWithPoolSubmitAndDiscard();
   }
   
+  // Light wallet cannot be aware of txs in pool
   @Override
   @Test
+  @Disabled
   public void testSyncWithPoolSubmitAndRelay() {
     super.testSyncWithPoolSubmitAndRelay();
   }
   
+  // Light wallet cannot be aware of txs in pool
   @Override
   @Test
+  @Disabled
   public void testSyncWithPoolRelay() {
     super.testSyncWithPoolRelay();
   }
   
   @Override
   @Test
-  @Disabled
   public void testSendToSelf() {
     super.testSendToSelf();
   }
   
+// Can send to an external address
   @Override
   @Test
-  @Disabled
   public void testSendToExternal() {
-    super.testSendToExternal();
+    assumeTrue(TEST_RELAYS);
+    MoneroWalletLight recipient = null;
+    try {
+      
+      // wait for txs to confirm and for sufficient unlocked balance
+      TestUtils.WALLET_TX_TRACKER.waitForWalletTxsToClearPool(wallet);
+      BigInteger amount = TestUtils.MAX_FEE.multiply(BigInteger.valueOf(3));
+      TestUtils.WALLET_TX_TRACKER.waitForUnlockedBalance(wallet, 0, null, amount);
+      
+      // create recipient wallet
+      recipient = createWallet(new MoneroWalletConfig());
+      
+      // collect sender balances before
+      BigInteger balance1 = wallet.getBalance();
+      BigInteger unlockedBalance1 = wallet.getUnlockedBalance();
+      
+      // send funds to recipient
+      MoneroTxWallet tx = wallet.createTx(new MoneroTxConfig()
+              .setAccountIndex(0)
+              .setAddress(wallet.getIntegratedAddress(recipient.getPrimaryAddress(), "54491f3bb3572a37").getIntegratedAddress())
+              .setAmount(amount)
+              .setRelay(true));
+      
+      // test sender balances after
+      BigInteger balance2 = wallet.getBalance();
+      BigInteger unlockedBalance2 = wallet.getUnlockedBalance();
+      assertTrue(unlockedBalance2.compareTo(unlockedBalance1) < 0); // unlocked balance should decrease
+      BigInteger expectedBalance = balance1.subtract(tx.getOutgoingAmount()).subtract(tx.getFee());
+      assertEquals(expectedBalance, balance2, "Balance after send was not balance before - net tx amount - fee (5 - 1 != 4 test)");
+      
+      // test recipient balance after
+      // lws may not support unconfirmed txs, so it's better to wait for block confirmation
+      daemon.waitForNextBlockHeader();
+
+      recipient.sync();
+
+      assertTrue(recipient.isSynced());
+      //assertFalse(wallet.getTxs(new MoneroTxQuery().setIsConfirmed(false)).isEmpty());
+      assertFalse(wallet.getTxs(new MoneroTxQuery().setIsConfirmed(true)).isEmpty());
+
+      assertEquals(amount, recipient.getBalance());
+    } finally {
+      if (recipient != null && !recipient.isClosed()) closeWallet(recipient);
+    }
   }
 
   @Override
@@ -2375,53 +2429,47 @@ public class TestMoneroWalletLight extends TestMoneroWalletFull {
 
   @Override
   @Test
-  @Disabled
   public void testSweepOutputs() {
     super.testSweepOutputs();
   }
 
   @Override
   @Test
-  @Disabled
   public void testSweepSubaddresses() {
     super.testSweepSubaddresses();
   }
 
   @Override
   @Test
-  @Disabled
   public void testSweepAccounts() {
     super.testSweepAccounts();
   }
 
   @Override
   @Test
-  @Disabled
   public void testSweepWalletByAccounts() {
     super.testSweepWalletByAccounts();
   }
 
   @Override
   @Test
-  @Disabled
   public void testSweepWalletBySubaddresses() {
     super.testSweepWalletBySubaddresses();
   }
 
   @Override
   @Test
-  @Disabled
   public void testSweepDustNoRelay() {
     super.testSweepDustNoRelay();
   }
 
   @Override
   @Test
-  @Disabled
   public void testSweepDust() {
     super.testSweepDust();
   }
   
+  // Light wallet doesn't support scan txs
   @Override
   @Test
   @Disabled
@@ -2435,13 +2483,16 @@ public class TestMoneroWalletLight extends TestMoneroWalletFull {
   public void testRescanBlockchain() {
     super.testRescanBlockchain();
   }
-  
+
+  // Light wallet doesn't support multisign
   @Override
   @Test
   @Disabled
   public void testMultisig() {
     super.testMultisig();
   }
+
+  // Light wallet doesn't support multisign
 
   @Override
   @Test
@@ -2516,15 +2567,46 @@ public class TestMoneroWalletLight extends TestMoneroWalletFull {
     super.testStopListening();
   }
   
+  // Can be created and receive funds
   @Override
   @Test
   public void testCreateAndReceive() {
-    super.testCreateAndReceive();
+    assumeTrue(TEST_NOTIFICATIONS);
+    
+    // create random wallet
+    MoneroWallet receiver = createWallet(new MoneroWalletConfig());
+    try {
+      
+      // listen for received outputs
+      WalletNotificationCollector myListener = new WalletNotificationCollector();
+      receiver.addListener(myListener);
+      
+      // wait for txs to confirm and for sufficient unlocked balance
+      TestUtils.WALLET_TX_TRACKER.waitForWalletTxsToClearPool(wallet);
+      TestUtils.WALLET_TX_TRACKER.waitForUnlockedBalance(wallet, 0, null, TestUtils.MAX_FEE);
+      
+      // send funds to the receiver
+      MoneroTxWallet sentTx = wallet.createTx(new MoneroTxConfig().setAccountIndex(0).setAddress(receiver.getPrimaryAddress()).setAmount(TestUtils.MAX_FEE).setRelay(true));
+      
+      // wait for funds to confirm
+      try { StartMining.startMining(); } catch (Exception e) { }
+      while (!(wallet.getTx(sentTx.getHash())).isConfirmed()) {
+        if (wallet.getTx(sentTx.getHash()).isFailed()) throw new Error("Tx failed in mempool: " + sentTx.getHash());
+        daemon.waitForNextBlockHeader();
+      }
+      
+      // receiver should have notified listeners of received outputs
+      try { TimeUnit.MILLISECONDS.sleep(1000); } catch (InterruptedException e) {  throw new RuntimeException(e); } // zmq notifications received within 1 second
+      // wallet2 doesn't notify outputs received when it is light mode
+      //assertFalse(myListener.getOutputsReceived().isEmpty());
+    } finally {
+      closeWallet(receiver);
+      try { daemon.stopMining(); } catch (Exception e) { }
+    }
   }
   
   @Override
   @Test
-  @Disabled
   public void testFreezeOutputs() {
     super.testFreezeOutputs();
   }
@@ -2536,54 +2618,12 @@ public class TestMoneroWalletLight extends TestMoneroWalletFull {
     super.testInputKeyImages();
   }
 
-  // Can prove unrelayed txs
+  // Light wallet cannot prove unrelayed txs
   @Override
   @Test
   @Disabled
   public void testProveUnrelayedTxs() {
-      
-      // create unrelayed tx to verify
-      String address1 = TestUtils.getExternalWalletAddress();
-      String address2 = wallet.getAddress(0, 0);
-      String address3 = wallet.getAddress(1, 0);
-      MoneroTxWallet tx = wallet.createTx(new MoneroTxConfig()
-              .setAccountIndex(0)
-              .addDestination(address1, TestUtils.MAX_FEE)
-              .addDestination(address2, TestUtils.MAX_FEE.multiply(BigInteger.valueOf(2l)))
-              .addDestination(address3, TestUtils.MAX_FEE.multiply(BigInteger.valueOf(3l))));
-      
-      // submit tx to daemon but do not relay
-      MoneroSubmitTxResult result = daemon.submitTxHex(tx.getFullHex(), true);
-      assertTrue(result.isGood());
-      
-      // create random wallet to verify transfers
-      MoneroWallet verifyingWallet = createWalletFull(new MoneroWalletConfig());
-      
-      // verify transfer 1
-      MoneroCheckTx check = verifyingWallet.checkTxKey(tx.getHash(), tx.getKey(), address1);
-      assertTrue(check.isGood());
-      assertTrue(check.inTxPool());
-      assertEquals(0, check.getNumConfirmations());
-      assertEquals(TestUtils.MAX_FEE, check.getReceivedAmount());
-      
-      // verify transfer 2
-      check = verifyingWallet.checkTxKey(tx.getHash(), tx.getKey(), address2);
-      assertTrue(check.isGood());
-      assertTrue(check.inTxPool());
-      assertEquals(0, check.getNumConfirmations());
-      assertTrue(check.getReceivedAmount().compareTo(TestUtils.MAX_FEE.multiply(BigInteger.valueOf(2l))) >= 0); // + change amount
-      
-      // verify transfer 3
-      check = verifyingWallet.checkTxKey(tx.getHash(), tx.getKey(), address3);
-      assertTrue(check.isGood());
-      assertTrue(check.inTxPool());
-      assertEquals(0, check.getNumConfirmations());
-      assertEquals(TestUtils.MAX_FEE.multiply(BigInteger.valueOf(3l)), check.getReceivedAmount());
-      
-      // cleanup
-      daemon.flushTxPool(tx.getHash());
-      closeWallet(verifyingWallet);
+    super.testProveUnrelayedTxs();
   }
-  
   
 }

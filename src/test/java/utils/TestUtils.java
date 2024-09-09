@@ -86,15 +86,10 @@ public class TestUtils {
   public static final BigInteger MAX_FEE = BigInteger.valueOf(7500000).multiply(BigInteger.valueOf(10000));
   public static final MoneroNetworkType NETWORK_TYPE = MoneroNetworkType.TESTNET;
   public static final String LANGUAGE = "English";
-  //public static final String SEED = "silk mocked cucumber lettuce hope adrenalin aching lush roles fuel revamp baptism wrist long tender teardrop midst pastry pigment equip frying inbound pinched ravine frying";
-  //public static final String ADDRESS = "A1y9sbVt8nqhZAVm3me1U18rUVXcjeNKuBd1oE2cTs8biA9cozPMeyYLhe77nPv12JA3ejJN3qprmREriit2fi6tJDi99RR";
-  //public static final String PRIVATE_VIEW_KEY = "198820da9166ee114203eb38c29e00b0e8fc7df508aa632d56ead849093d3808";
-  //public static final long FIRST_RECEIVE_HEIGHT = 171; // NOTE: this value must be the height of the wallet's first tx for tests
-  public static final String SEED = "gang sunken soya nautical gone woozy pram imitate iceberg wade wives unknown anybody distance cigar fungal outbreak quick goggles voucher simplest suffice jive jive iceberg";
-  public static final String ADDRESS = "A19buHUcWkLTq79ExrEhazUCbVdGLeEQqEMMeBMncAEggWaU3h2H68M2Duf4mrZzwainYSWARpjsGgxwykP7XczCMbBHRCC";
-  public static final String PRIVATE_VIEW_KEY = "44468fcffea57b6550cd3fc9c0503e06fa02b1c44fa4c31c79426454df7c1b0d";
-  public static final long FIRST_RECEIVE_HEIGHT = 2537009; // NOTE: this value must be the height of the wallet's first tx for tests
-  
+  public static final String SEED = "silk mocked cucumber lettuce hope adrenalin aching lush roles fuel revamp baptism wrist long tender teardrop midst pastry pigment equip frying inbound pinched ravine frying";
+  public static final String ADDRESS = "A1y9sbVt8nqhZAVm3me1U18rUVXcjeNKuBd1oE2cTs8biA9cozPMeyYLhe77nPv12JA3ejJN3qprmREriit2fi6tJDi99RR";
+  public static final String PRIVATE_VIEW_KEY = "198820da9166ee114203eb38c29e00b0e8fc7df508aa632d56ead849093d3808";
+  public static final long FIRST_RECEIVE_HEIGHT = 171; // NOTE: this value must be the height of the wallet's first tx for tests
   public static final long SYNC_PERIOD_IN_MS = 5000; // period between wallet syncs in milliseconds
   public static final String OFFLINE_SERVER_URI = "offline_server_uri"; // dummy server uri to remain offline because wallet2 connects to default if not given
   public static final long AUTO_CONNECT_TIMEOUT_MS = 3000;
