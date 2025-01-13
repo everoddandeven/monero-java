@@ -1113,9 +1113,8 @@ public class MoneroDaemonRpc extends MoneroDaemonDefault {
     MoneroBlockTemplate template = new MoneroBlockTemplate();
     for (String key : rpcTemplate.keySet()) {
       Object val = rpcTemplate.get(key);
-      if (key.equals("blockhashing_blob")) template.setBlockTemplateBlob((String) val);
-      else if (key.equals("blocktemplate_blob")) template.setBlockHashingBlob((String) val);
-      else if (key.equals("difficulty")) template.setDifficulty((BigInteger) val);
+      if (key.equals("blockhashing_blob")) template.setBlockHashingBlob((String) val);
+      else if (key.equals("blocktemplate_blob")) template.setBlockTemplateBlob((String) val);
       else if (key.equals("expected_reward")) template.setExpectedReward((BigInteger) val);
       else if (key.equals("difficulty")) { }  // handled by wide_difficulty
       else if (key.equals("difficulty_top64")) { }  // handled by wide_difficulty
@@ -1458,7 +1457,7 @@ public class MoneroDaemonRpc extends MoneroDaemonDefault {
       else if (key.equals("status") || key.equals("untrusted")) {}  // handled elsewhere
       else if (key.equals("top_hash")) result.setTopBlockHash("".equals(val) ? null : (String) val);
       else if (key.equals("tx_extra_too_big")) result.setIsTxExtraTooBig((Boolean) val);
-      else if (key.equals("nonzero_unlock_time")) {} // ignored
+      else if (key.equals("nonzero_unlock_time")) result.setIsNonzeroUnlockTime((Boolean) val);
       else LOGGER.warning("ignoring unexpected field in submit tx hex result: " + key + ": " + val);
     }
     return result;

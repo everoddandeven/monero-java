@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>io.github.woodser</groupId>
 	<artifactId>monero-java</artifactId>
-	<version>0.8.32</version>
+	<version>0.8.34</version>
 	<name>Monero Java Library</name>
 	<description>A Java library for using Monero</description>
 	<url>https://github.com/woodser/monero-java</url>
@@ -67,10 +67,16 @@
 			<artifactId>bcprov-jdk15on</artifactId>
 			<version>1.70</version>
 		</dependency>
+			<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>1.7.25</version>
+		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-simple</artifactId>
 			<version>1.7.25</version>
+			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.zeromq</groupId>

@@ -1131,7 +1131,7 @@ public class TestMoneroDaemonRpc {
     
     // try to submit block hashing blob without nonce
     try {
-      daemon.submitBlock(template.getBlockHashingBlob());
+      daemon.submitBlock(template.getBlockTemplateBlob());
       fail("Should have thrown error");
     } catch (MoneroRpcError e) {
       assertEquals(-7, (int) e.getCode());
@@ -2018,6 +2018,7 @@ public class TestMoneroDaemonRpc {
       assertNull(result.getTopBlockHash());
       assertEquals(false, result.isTxExtraTooBig());
       assertEquals(true, result.isGood());
+      assertEquals(false, result.isNonzeroUnlockTime());
     } catch (AssertionError e) {
       System.out.println("Submit result is not good: " + JsonUtils.serialize(result));
       throw e;
