@@ -1954,8 +1954,33 @@ public class TestMoneroWalletLight extends TestMoneroWalletCommon {
   @Override
   @Test
   public void testSendToSelf() {
-    super.testSendToSelf();
+    assumeTrue(TEST_RELAYS);
+    
+    // wait for txs to confirm and for sufficient unlocked balance
+    TestUtils.WALLET_TX_TRACKER.waitForWalletTxsToClearPool(wallet);
+    BigInteger amount = TestUtils.MAX_FEE.multiply(BigInteger.valueOf(3));
+    TestUtils.WALLET_TX_TRACKER.waitForUnlockedBalance(wallet, 0, null, amount);
+    
+    // collect sender balances before
+    BigInteger balance1 = wallet.getBalance();
+    BigInteger unlockedBalance1 = wallet.getUnlockedBalance();
+    
+    // send funds to self
+    MoneroTxWallet tx = wallet.createTx(new MoneroTxConfig()
+            .setAccountIndex(0)
+            .setAddress(wallet.getIntegratedAddress().getIntegratedAddress())
+            .setAmount(amount)
+            .setRelay(true));
+    
+    // test balances after
+    BigInteger balance2 = wallet.getBalance();
+    BigInteger unlockedBalance2 = wallet.getUnlockedBalance();
+    assertTrue(unlockedBalance2.compareTo(unlockedBalance1) < 0); // unlocked balance should decrease
+    BigInteger expectedBalance = balance1.subtract(tx.getFee());
+    if (!expectedBalance.equals(balance2)) System.out.println("Expected=" + expectedBalance + " - Actual=" + balance2 + " = " + (expectedBalance.subtract(balance2)));
+    assertEquals(expectedBalance, balance2, "Balance after send was not balance before - fee");
   }
+  
   
 // Can send to an external address
   @Override
@@ -1991,6 +2016,8 @@ public class TestMoneroWalletLight extends TestMoneroWalletCommon {
       BigInteger expectedBalance = balance1.subtract(tx.getOutgoingAmount()).subtract(tx.getFee());
       assertEquals(expectedBalance, balance2, "Balance after send was not balance before - net tx amount - fee (5 - 1 != 4 test)");
       
+      try { StartMining.startMining(); } catch (Exception e) { }
+
       // test recipient balance after
       // lws may not support unconfirmed txs, so it's better to wait for block confirmation
       daemon.waitForNextBlockHeader();
@@ -2004,6 +2031,7 @@ public class TestMoneroWalletLight extends TestMoneroWalletCommon {
       assertEquals(amount, recipient.getBalance());
     } finally {
       if (recipient != null && !recipient.isClosed()) closeWallet(recipient);
+      try { daemon.stopMining(); } catch (Exception e) { }
     }
   }
 
@@ -2027,7 +2055,6 @@ public class TestMoneroWalletLight extends TestMoneroWalletCommon {
   }
 
   @Override
-  @Disabled
   @Test
   public void testSendWithPaymentId() {
     super.testSendWithPaymentId();
