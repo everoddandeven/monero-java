@@ -107,6 +107,11 @@ public class TestMoneroWalletRpc extends TestMoneroWalletCommon {
   }
   
   @Override
+  protected MoneroWalletRpc openWallet(MoneroWalletConfig config, boolean startSyncing) {
+    throw new RuntimeException("Not supported");
+  }
+
+  @Override
   protected MoneroWalletRpc createWallet(MoneroWalletConfig config) {
     
     // assign defaults
@@ -149,6 +154,12 @@ public class TestMoneroWalletRpc extends TestMoneroWalletCommon {
     return ((MoneroWalletRpc) wallet).getSeedLanguages();
   }
   
+  @Override
+  protected MoneroWalletRpc createWallet(MoneroWalletConfig config, boolean startSyncing)
+  {
+    throw new RuntimeException("Not supported");
+  }
+
   // ---------------------------- BEGIN TESTS ---------------------------------
   
   // Can create a wallet with a randomly generated seed
@@ -445,6 +456,56 @@ public class TestMoneroWalletRpc extends TestMoneroWalletCommon {
   
   // -------------------- OVERRIDES TO BE DIRECTLY RUNNABLE -------------------
   
+  @Override
+  @Test
+  @Disabled // Never tested for wallet rpc
+  public void testSyncRandom() {
+    super.testSyncRandom();
+  }
+
+
+  @Override
+  @Test
+  @Disabled // Never tested for wallet rpc
+  public void testResyncExisting() {
+    super.testResyncExisting();
+  }
+
+  @Override
+  @Test
+  @Disabled // Never tested for wallet rpc
+  public void testSyncWalletFromKeys() {
+    super.testSyncWalletFromKeys();
+  }
+
+  @Override
+  @Test
+  @Disabled // Never tested for wallet rpc
+  public void testStartStopSyncing() {
+    super.testStartStopSyncing();
+  }
+
+  @Override
+  @Test
+  @Disabled // Not implemented for wallet rpc
+  public void testGetDaemonMaxPeerHeight() {
+    super.testGetDaemonMaxPeerHeight();
+  }
+
+  @Override
+  @Test
+  @Disabled // Never tested for wallet rpc
+  public void testDaemon() {
+    super.testDaemon();
+  }
+
+  @Override
+  @Test
+  @Disabled // Not implemented for wallet rpc
+  public void testMemoryLeak() {
+    super.testMemoryLeak();
+  }
+
   @Override
   @Test
   public void testCreateWalletRandom() {
